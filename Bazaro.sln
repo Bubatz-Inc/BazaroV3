@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Web", "Bazaro.Web\Bazaro.Web.csproj", "{AF44B6B9-A461-436B-AC37-5F2D67029925}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Web", "Bazaro.Web\Bazaro.Web.csproj", "{AF44B6B9-A461-436B-AC37-5F2D67029925}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Core", "Bazaro.Core\Bazaro.Core.csproj", "{9F194E17-FBE6-4410-B70B-D426887D6165}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Data", "Bazaro.Data\Bazaro.Data.csproj", "{7CCAB6DF-4DB1-4EF8-B1BC-0A28083130E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F194E17-FBE6-4410-B70B-D426887D6165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F194E17-FBE6-4410-B70B-D426887D6165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F194E17-FBE6-4410-B70B-D426887D6165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F194E17-FBE6-4410-B70B-D426887D6165}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CCAB6DF-4DB1-4EF8-B1BC-0A28083130E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CCAB6DF-4DB1-4EF8-B1BC-0A28083130E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CCAB6DF-4DB1-4EF8-B1BC-0A28083130E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CCAB6DF-4DB1-4EF8-B1BC-0A28083130E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
