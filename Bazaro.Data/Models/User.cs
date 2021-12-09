@@ -1,19 +1,10 @@
 ﻿using Bazaro.Data.Models.Base;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Bazaro.Data.Models
 {
-    public record class User : IdEntity
+    public class User : IdentityUser, IEntity
     {
-        [Required]
-        [MinLength(2)]
-        [MaxLength(100)]
-        public string Name { get; set; }
-        public string Email { get; set; }
-
-        [Required]
-        [MaxLength(64)]
-        public byte[] Password { get; set; }
         public string AvatarUrl { get; set; }
     }
 }
