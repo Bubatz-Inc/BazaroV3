@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Web", "Bazaro.Web\Bazaro.Web.csproj", "{AF44B6B9-A461-436B-AC37-5F2D67029925}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4A0F487C-1C1F-4DB7-A48E-5890A7CE252A}
+	EndGlobalSection
+EndGlobal
