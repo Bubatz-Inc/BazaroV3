@@ -2,11 +2,10 @@
 
 namespace Bazaro.Core.Models
 {
-    public record class ItemModel
+    public class HeaderModel
     {
         public int Id { get; set; }
-        public int? NextItemId { get; set; }
-        public ContentType ContentType { get; set; }
+        public HeaderType Type { get; set; }
         public byte[] Content { get; set; }
     }
 }
