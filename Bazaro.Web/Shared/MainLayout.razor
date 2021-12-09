@@ -1,10 +1,11 @@
 ﻿@inherits LayoutComponentBase
-
+@inject NavigationManager nav
 <PageTitle>Bazaro.Web</PageTitle>
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
+        <button class="btn btn-primary" @onclick="NavToCounter" >Counter</button>
     </div>
 
     <main>
@@ -18,3 +19,10 @@
         </article>
     </main>
 </div>
+
+@code{
+    private void NavToCounter()
+    {
+        nav.NavigateTo("counter");
+    }
+}
