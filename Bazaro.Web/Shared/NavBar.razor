@@ -1,4 +1,4 @@
-﻿<Sidebar @ref="sidebar" class="customsidebar" style="width: 55px;">
+﻿<Sidebar class="customsidebar" style="width: 56px;">
     <SidebarContent>
         <SidebarBrand>
             <img src="/icon.png" height="55" width="55" href="#"/>
@@ -6,7 +6,7 @@
         <SidebarNavigation>
             <SidebarItem>
                 <SidebarLink To="dashboard">
-                    <Icon Name="IconName.Poll"/>
+                    <Icon Name="IconName.Home"/>
                 </SidebarLink>
             </SidebarItem>
             <SidebarItem>
@@ -22,12 +22,3 @@
         </SidebarNavigation>
     </SidebarContent>
 </Sidebar>
-
-@code{
-    Sidebar sidebar;
-
-    void ToggleSidebar()
-    {
-        sidebar.Toggle();
-    }
-}

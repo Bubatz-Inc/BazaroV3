@@ -1,50 +1,34 @@
-﻿<Sidebar @ref="sidebar">
-    <SidebarContent>
-        <SidebarBrand>
-            <a href="#">Blazorise Sidebar</a>
-        </SidebarBrand>
-        <SidebarNavigation>
-            <SidebarLabel>Main</SidebarLabel>
-            <SidebarItem>
-                <SidebarLink To="#" Title="Home">
-                    <Icon Name="IconName.Home" Margin="Margin.Is3.FromRight" />Home
-                </SidebarLink>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink Toggled="(isOpen)=> mailSidebarSubItems.Toggle(isOpen)" IsShow="true">
-                    <Icon Name="IconName.Mail" Margin="Margin.Is3.FromRight" />Email
-                </SidebarLink>
-                <SidebarSubItem @ref="mailSidebarSubItems" IsShow="true">
-                    <SidebarItem>
-                        <SidebarLink To="#email/inbox">Inbox</SidebarLink>
-                    </SidebarItem>
-                    <SidebarItem>
-                        <SidebarLink To="#email/compose">Compose Email</SidebarLink>
-                    </SidebarItem>
-                    @* other subitems *@
-                </SidebarSubItem>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink Toggled="(isOpen)=> appsSidebarSubItems.Toggle(isOpen)" IsShow="true">
-                    <Icon Name="IconName.Smartphone" Margin="Margin.Is3.FromRight" />Apps
-                </SidebarLink>
-                <SidebarSubItem @ref="appsSidebarSubItems" IsShow="true">
-                    <SidebarItem>
-                        <SidebarLink To="#apps/todo">Todo List</SidebarLink>
-                    </SidebarItem>
-                </SidebarSubItem>
-            </SidebarItem>
-        </SidebarNavigation>
-    </SidebarContent>
-</Sidebar>
+﻿@using Bazaro.Data.Models
+
+<Sidebar Data="@sidebarInfo" />
 
 @code{
-    Sidebar sidebar;
-    SidebarSubItem mailSidebarSubItems;
-    SidebarSubItem appsSidebarSubItems;
-
-    void ToggleSidebar()
+    SidebarInfo sidebarInfo = new SidebarInfo
     {
-        sidebar.Toggle();
-    }
+        Brand = new SidebarBrandInfo
+        {
+            Text = "Bazaro"
+        },
+        Items = new List<SidebarItemInfo>
+    {
+            new SidebarItemInfo { To = "#", Text = "Folder 1" },
+            new SidebarItemInfo
+            {
+                Text = "Folder 2",
+                SubItems = new List<SidebarItemInfo>
+            {
+                    new SidebarItemInfo { To = "#email/inbox", Text = "Note 1" },
+                    new SidebarItemInfo { To = "#email/compose", Text = "Note 2" },
+                }
+            },
+            new SidebarItemInfo
+            {
+                Text = "Folder 3",
+                SubItems = new List<SidebarItemInfo>
+            {
+                    new SidebarItemInfo { To = "#apps/todo", Text = "Note 1" }
+                }
+            },
+        }
+    };
 }
