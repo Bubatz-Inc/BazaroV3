@@ -26,7 +26,6 @@ namespace Bazaro.Core.Services.Queries.Entries
             var result = new List<EntryModel>();
             foreach (var entry in entryList)
             {
-
                 var model = new EntryModel
                 {
                     Id = entry.Id,
@@ -39,8 +38,9 @@ namespace Bazaro.Core.Services.Queries.Entries
                     }).ToList(),
                     StartItem = CreateEntryModel(entry.StartItem)
                 };
-
             }
+
+            return result;
         }
 
         private static ItemModel? CreateEntryModel(Item? item)
@@ -50,7 +50,7 @@ namespace Bazaro.Core.Services.Queries.Entries
 
             return new ItemModel
             {
-                ContentType = item.ContentType.Description,
+                ContentType = item.ContentType.Title,
                 Content = item.Content,
                 NextItem = CreateEntryModel(item.NextItem)
             };

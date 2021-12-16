@@ -1,6 +1,6 @@
 ﻿using Bazaro.Data.Models;
 using Bazaro.Data.Models.Base;
-using Bazaro.Data.Models.Relations;
+using Bazaro.Data.Models.References;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,10 +25,8 @@ namespace Bazaro.Data
                     modelBuilder.Entity(type);
 
             // Dual Keys
-            modelBuilder.Entity<EntryCalendarEntryRelation>().HasKey(c => new { c.EntryId, c.CalendarEntryId });
-            modelBuilder.Entity<EntryEntryRelation>().HasKey(c => new { c.LinkId, c.BacklinkId });
-            modelBuilder.Entity<UserCalendarEntryRelation>().HasKey(c => new { c.UserId, c.CalendarEntryId });
-            modelBuilder.Entity<UserEntryRelation>().HasKey(c => new { c.UserId, c.EntryId });
+            modelBuilder.Entity<FolderEntryReference>().HasKey(c => new { c.EntryId, c.FolderId });
+            modelBuilder.Entity<UserFolderReference>().HasKey(c => new { c.UserId, c.FolderId });
 
             var relations = modelBuilder.Model.GetEntityTypes().SelectMany(c => c.GetForeignKeys());
             foreach (var item in relations)
