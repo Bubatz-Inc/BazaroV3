@@ -1,36 +1,19 @@
-﻿<Sidebar @ref="sidebar">
+﻿@using Bazaro.Data.Models
+
+<Sidebar @ref="sidebar">
     <SidebarContent>
-        <SidebarBrand>
-            <a href="#">Blazorise Sidebar</a>
-        </SidebarBrand>
         <SidebarNavigation>
-            <SidebarLabel>Main</SidebarLabel>
+            <SidebarLabel>Notes</SidebarLabel>
             <SidebarItem>
-                <SidebarLink To="#" Title="Home">
-                    <Icon Name="IconName.Home" Margin="Margin.Is3.FromRight" />Home
+                <SidebarLink Toggled="(isOpen)=> NoteSubItems.Toggle(isOpen)" IsShow="true">
+                    <Icon Name="IconName.StickyNote" Margin="Margin.Is3.FromRight" />Note 1
                 </SidebarLink>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink Toggled="(isOpen)=> mailSidebarSubItems.Toggle(isOpen)" IsShow="true">
-                    <Icon Name="IconName.Mail" Margin="Margin.Is3.FromRight" />Email
-                </SidebarLink>
-                <SidebarSubItem @ref="mailSidebarSubItems" IsShow="true">
+                <SidebarSubItem @ref="NoteSubItems" IsShow="true">
                     <SidebarItem>
-                        <SidebarLink To="#email/inbox">Inbox</SidebarLink>
+                        <SidebarLink To="#edit/1">Subnote 1</SidebarLink>
                     </SidebarItem>
                     <SidebarItem>
-                        <SidebarLink To="#email/compose">Compose Email</SidebarLink>
-                    </SidebarItem>
-                    @* other subitems *@
-                </SidebarSubItem>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink Toggled="(isOpen)=> appsSidebarSubItems.Toggle(isOpen)" IsShow="true">
-                    <Icon Name="IconName.Smartphone" Margin="Margin.Is3.FromRight" />Apps
-                </SidebarLink>
-                <SidebarSubItem @ref="appsSidebarSubItems" IsShow="true">
-                    <SidebarItem>
-                        <SidebarLink To="#apps/todo">Todo List</SidebarLink>
+                        <SidebarLink To="#edit/2">Subnote 2</SidebarLink>
                     </SidebarItem>
                 </SidebarSubItem>
             </SidebarItem>
@@ -40,11 +23,17 @@
 
 @code{
     Sidebar sidebar;
-    SidebarSubItem mailSidebarSubItems;
-    SidebarSubItem appsSidebarSubItems;
+    Entry[]? entries;
+
+    SidebarSubItem NoteSubItems;
 
     void ToggleSidebar()
     {
         sidebar.Toggle();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fill "entries" array
     }
 }
