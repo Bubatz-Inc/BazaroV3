@@ -1,39 +1,34 @@
 ﻿@using Bazaro.Data.Models
 
-<Sidebar @ref="sidebar">
-    <SidebarContent>
-        <SidebarNavigation>
-            <SidebarLabel>Notes</SidebarLabel>
-            <SidebarItem>
-                <SidebarLink Toggled="(isOpen)=> NoteSubItems.Toggle(isOpen)" IsShow="true">
-                    <Icon Name="IconName.StickyNote" Margin="Margin.Is3.FromRight" />Note 1
-                </SidebarLink>
-                <SidebarSubItem @ref="NoteSubItems" IsShow="true">
-                    <SidebarItem>
-                        <SidebarLink To="#edit/1">Subnote 1</SidebarLink>
-                    </SidebarItem>
-                    <SidebarItem>
-                        <SidebarLink To="#edit/2">Subnote 2</SidebarLink>
-                    </SidebarItem>
-                </SidebarSubItem>
-            </SidebarItem>
-        </SidebarNavigation>
-    </SidebarContent>
-</Sidebar>
+<Sidebar Data="@sidebarInfo" />
 
 @code{
-    Sidebar sidebar;
-    Entry[]? entries;
-
-    SidebarSubItem NoteSubItems;
-
-    void ToggleSidebar()
+    SidebarInfo sidebarInfo = new SidebarInfo
     {
-        sidebar.Toggle();
-    }
-
-    protected override async Task OnInitializedAsync()
+        Brand = new SidebarBrandInfo
+        {
+            Text = "Bazaro"
+        },
+        Items = new List<SidebarItemInfo>
     {
-        // Fill "entries" array
-    }
+            new SidebarItemInfo { To = "#", Text = "Folder 1" },
+            new SidebarItemInfo
+            {
+                Text = "Folder 2",
+                SubItems = new List<SidebarItemInfo>
+            {
+                    new SidebarItemInfo { To = "#email/inbox", Text = "Note 1" },
+                    new SidebarItemInfo { To = "#email/compose", Text = "Note 2" },
+                }
+            },
+            new SidebarItemInfo
+            {
+                Text = "Folder 3",
+                SubItems = new List<SidebarItemInfo>
+            {
+                    new SidebarItemInfo { To = "#apps/todo", Text = "Note 1" }
+                }
+            },
+        }
+    };
 }
