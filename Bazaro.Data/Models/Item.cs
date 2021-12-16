@@ -5,13 +5,13 @@ namespace Bazaro.Data.Models
 {
     public record class Item : IdEntity
     {
-        public Item NextItem { get; set; }
-        public int? NextItemId { get; set; }
+        public Item? NextItem { get; set; }
+        public int NextItemId { get; set; }
 
         [Required]
         public ContentType ContentType { get; set; }
+        public int ContentTypeId { get; set; }
 
-        [Required]
         public byte[] Content { get; set; }
     }
 }
