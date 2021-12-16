@@ -5,11 +5,16 @@ namespace Bazaro.Data.Models
 {
     public record class Entry : IdEntity
     {
-        [Required]
-        [MinLength(2)]
         [MaxLength(256)]
         public string Title { get; set; }
-        public Item Item { get; set; }
-        public int? ItemId { get; set; }
+
+        [MaxLength(1024)]
+        public string Description { get; set; }
+
+        public List<EntryTag> EntryTag { get; set; }
+        public List<int> EntryTagId { get; set; }
+
+        public Item? StartItem { get; set; }
+        public int? StartItemId { get; set; }
     }
 }
