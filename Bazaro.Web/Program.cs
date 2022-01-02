@@ -10,18 +10,28 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// read pw for db from .env file and add it to the db connectionstring
+// read pw for db from .env file or env variable(OS) and add it to the db connectionstring
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
-DotEnv.Load(dotenv);
-
-string? pw = Environment.GetEnvironmentVariable("DB_PW");
-if(pw == null)
+bool file_exists = DotEnv.LoadFromFile(dotenv);
+string? pw;
+if (!file_exists)
 {
-    throw new FileLoadException("Please set the .env File!");
+    pw = Environment.GetEnvironmentVariable("DB_PW");
+    if (pw == null)
+    {
+        throw new FileLoadException("Please create the .env File!");
+    }
+}
+else
+{
+    pw = DotEnv.FromEnvVariable("DB_PW");
+    if (pw == null)
+    {
+        throw new Exception("Please set the ENV variable!");
+    }
 }
 
 // Add services to the container.
@@ -46,8 +56,6 @@ builder.Services
       })
       .AddBootstrap5Providers()
       .AddFontAwesomeIcons();
-
-
 
 var app = builder.Build();
 
