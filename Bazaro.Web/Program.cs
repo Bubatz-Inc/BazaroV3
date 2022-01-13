@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 bool file_exists = DotEnv.LoadFromFile(dotenv);
-string? pw;
+string pw;
 if (!file_exists)
 {
     pw = Environment.GetEnvironmentVariable("DB_PW");
@@ -39,7 +39,6 @@ else
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
-    options.UseSqlServer(connectionString));builder.Services.AddDbContext<BazaroContext>(options =>
     //options.UseSqlServer(connectionString)
     options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
