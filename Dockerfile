@@ -13,6 +13,8 @@ COPY . .
 WORKDIR "/src/Bazaro.Web"
 RUN dotnet build "Bazaro.Web.csproj" -c Release -o /app/build
 
+COPY /Bazaro/.env .
+
 FROM build AS publish
 RUN dotnet publish "Bazaro.Web.csproj" -c Release -o /app/publish
 
