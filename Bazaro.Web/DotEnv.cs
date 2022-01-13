@@ -5,7 +5,15 @@
         public static void Load(string filePath)
         {
             if (!File.Exists(filePath))
-                return;
+            {
+                var file = File.Create(filePath);
+                File.WriteAllText(filePath, "DB_PW=");
+                file.Close();
+                Console.WriteLine(filePath);
+
+
+            }
+                
 
             foreach (var line in File.ReadAllLines(filePath))
             {
