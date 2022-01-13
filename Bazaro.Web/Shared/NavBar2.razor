@@ -1,16 +1,20 @@
-@using Bazaro.Data.Models
 @using System.Security.Claims
+@using Bazaro.Web.Models
+@using Bazaro.Web.Services
+@using Bazaro.Web.Services.Models
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @inject FolderService fs
 @inject EntryService es
-@inject AuthenticationStateProvider auth
+@inject HttpContextAccessor http
+@inject UserManager<User> um
 
 
 <Sidebar Data="@sidebarInfo" />
 <Button @onclick="LoadFolders">TESTETSTETSTETSETS</Button>
 
 @code{
-    private List<Folder> _folders;
+    private List<FolderModel> _folders;
     private Entry[,] _entries;
 
     SidebarInfo sidebarInfo = new SidebarInfo
@@ -46,10 +50,10 @@
 
     private async Task LoadFolders()
     {
-        var state = await auth.GetAuthenticationStateAsync();
-        var userId = state.User.FindFirst(ClaimTypes.NameIdentifier);
-        var x = 1;
-        //_folders = fs.GetViewFolderStructureByuserId();
+        var username = http.HttpContext.User.Identity.Name;
+        var userId = (await um.FindByNameAsync(username)).Id;
+
+        _folders = await fs.GetViewFolderStructureByuserId(userId);
     }
 
 
