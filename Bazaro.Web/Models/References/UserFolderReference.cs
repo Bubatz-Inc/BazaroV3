@@ -6,7 +6,7 @@ namespace Bazaro.Web.Models.References
     {
         [Required]
         public User User { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [Required]
         public Folder Folder { get; set; }

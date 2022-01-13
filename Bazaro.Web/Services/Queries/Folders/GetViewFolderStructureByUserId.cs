@@ -9,7 +9,7 @@ namespace Bazaro.Web.Services.Queries.Folders
     {
         public class Query
         {
-            public int UserId { get; set; }
+            public string UserId { get; set; }
         }
 
         public static async Task<List<FolderModel>> Handle(BazaroContext context, Query request)
