@@ -12,7 +12,6 @@ namespace Bazaro.Web.Models
         public string Description { get; set; }
 
         public List<EntryTag> EntryTag { get; set; }
-        public List<int> EntryTagId { get; set; }
 
         public Item StartItem { get; set; }
         public int? StartItemId { get; set; }

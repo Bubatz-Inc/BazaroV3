@@ -17,6 +17,5 @@ namespace Bazaro.Web.Models
         public int? PreviousFolderId { get; set; }
 
         public List<Folder> SubFolder { get; set; }
-        public List<int> SubFolderId { get; set; }
     }
 }
