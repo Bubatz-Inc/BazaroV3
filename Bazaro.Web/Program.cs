@@ -1,7 +1,7 @@
-using Bazaro.Data;
-using Bazaro.Data.Models;
+using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Data;
+using Bazaro.Web.Models;
 using Bazaro.Web;
 using Blazorise;
 using Blazorise.Bootstrap5;
@@ -9,6 +9,7 @@ using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 bool file_exists = DotEnv.LoadFromFile(dotenv);
-string? pw;
+string pw;
 if (!file_exists)
 {
     pw = Environment.GetEnvironmentVariable("DB_PW");
@@ -38,8 +39,8 @@ else
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
-    options.UseNpgsql(connectionString));
-  //  options.UseInMemoryDatabase("Jonas-der-Spacken"));
+    //options.UseSqlServer(connectionString)
+    options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
