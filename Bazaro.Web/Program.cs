@@ -1,19 +1,21 @@
-using Bazaro.Data;
-using Bazaro.Data.Models;
+using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Data;
+using Bazaro.Web.Models;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BazaroContext>(options =>
+    options.UseSqlServer(connectionString));builder.Services.AddDbContext<BazaroContext>(options =>
     //options.UseSqlServer(connectionString)
     options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
