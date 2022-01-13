@@ -1,4 +1,4 @@
-﻿using Bazaro.Web.Models;
+﻿using Bazaro.Web.Models.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace Bazaro.Web.Models.References
