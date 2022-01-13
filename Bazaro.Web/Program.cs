@@ -2,6 +2,7 @@ using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Data;
 using Bazaro.Web.Models;
+using Bazaro.Web;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
@@ -12,8 +13,31 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// read pw for db from .env file or env variable(OS) and add it to the db connectionstring
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+bool file_exists = DotEnv.LoadFromFile(dotenv);
+string? pw;
+if (!file_exists)
+{
+    pw = Environment.GetEnvironmentVariable("DB_PW");
+    if (pw == null)
+    {
+        throw new FileLoadException("Please create the .env File!");
+    }
+}
+else
+{
+    pw = DotEnv.FromEnvVariable("DB_PW");
+    if (pw == null)
+    {
+        throw new Exception("Please set the ENV variable!");
+    }
+}
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
     options.UseSqlServer(connectionString));builder.Services.AddDbContext<BazaroContext>(options =>
     //options.UseSqlServer(connectionString)
@@ -34,7 +58,6 @@ builder.Services
       })
       .AddBootstrap5Providers()
       .AddFontAwesomeIcons();
-
 
 var app = builder.Build();
 
