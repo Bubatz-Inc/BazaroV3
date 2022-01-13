@@ -2,15 +2,12 @@ using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Data;
 using Bazaro.Web.Models;
-using Bazaro.Web;
+using Bazaro.Web.Services;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Bazaro.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
