@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Bazaro.Web.Models.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace Bazaro.Web.Models.References
 {
-    public record class UserFolderReference
+    public record class UserFolderReference : IEntity
     {
         [Required]
         public User User { get; set; }
