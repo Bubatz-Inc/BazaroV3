@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bazaro.Web.Services.Models
+namespace Bazaro.Web.Services.ViewModels
 {
     public record class EntryTagModel
     {
