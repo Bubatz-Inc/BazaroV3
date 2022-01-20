@@ -1,6 +1,6 @@
 ﻿using Blazorise.Charts;
 
-namespace Bazaro.Web.Pages.Components
+namespace Bazaro.Web.Pages.Main
 {
     public partial class Dashboard
     {
