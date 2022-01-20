@@ -1,6 +1,6 @@
 ﻿using Bazaro.Web.Models;
 using Bazaro.Web.Models.References;
-using Bazaro.Web.Services.Models;
+using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bazaro.Web.Services.Queries.Entries
@@ -30,12 +30,7 @@ namespace Bazaro.Web.Services.Queries.Entries
                     Id = entry.Id,
                     Title = entry.Title,
                     Description = entry.Description,
-                    Tags = entry.EntryTag.Select(x => new EntryTagModel
-                    {
-                        Id = x.Id,
-                        Title = x.Title
-                    }).ToList(),
-                    StartItem = CreateEntryModel(entry.StartItem)
+                    StartItemId = entry.StartItemId
                 };
             }
 

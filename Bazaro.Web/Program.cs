@@ -51,13 +51,17 @@ builder.Services.AddTransient<EntryService>();
 builder.Services.AddTransient<FolderService>();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddTransient<EntryService>();
+builder.Services.AddTransient<FolderService>();
+builder.Services.AddTransient<ItemService>();
+
 builder.Services
-      .AddBlazorise(options =>
-      {
-          options.ChangeTextOnKeyPress = true; // optional
-      })
-      .AddBootstrap5Providers()
-      .AddFontAwesomeIcons();
+    .AddBlazorise(options =>
+    {
+        options.ChangeTextOnKeyPress = true; // optional
+    })
+    .AddBootstrap5Providers()
+    .AddFontAwesomeIcons();
 
 var app = builder.Build();
 

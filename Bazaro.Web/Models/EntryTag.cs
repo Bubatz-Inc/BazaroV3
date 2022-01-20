@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bazaro.Web.Models
 {
+    // TODO: Create n:m to Entry
     public record class EntryTag : IdEntity
     {
         [Required]
