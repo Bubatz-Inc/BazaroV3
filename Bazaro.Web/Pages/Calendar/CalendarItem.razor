@@ -1,0 +1,13 @@
+﻿@using Bazaro.Web.Models
+<h3>CalendarItem</h3>
+
+<div class="event_item">
+    <div class="ei_Dot dot_active"></div>
+    <div class="ei_Title">10:30 am</div>
+    <div class="ei_Copy">Monday briefing with the team</div>
+</div>
+
+@code {
+    [Parameter]
+    public CalendarEntry entry { get; set; }
+}
