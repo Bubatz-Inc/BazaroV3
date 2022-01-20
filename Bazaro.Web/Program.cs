@@ -47,6 +47,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddTransient<EntryService>();
+builder.Services.AddTransient<FolderService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddTransient<EntryService>();
 builder.Services.AddTransient<FolderService>();

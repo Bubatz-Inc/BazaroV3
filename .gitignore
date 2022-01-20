@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 
 .env
+/Bazaro.Web/.env
+/Bazaro.Web/Dockerfile
