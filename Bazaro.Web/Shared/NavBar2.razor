@@ -1,34 +1,80 @@
-﻿@using Bazaro.Web.Models
+@using System.Security.Claims
+@using Bazaro.Web.Models
+@using Bazaro.Web.Services
+@using Bazaro.Web.Services.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject FolderService fs
+@inject EntryService es
+@inject IHttpContextAccessor http
+@inject UserManager<User> um
 
 <Sidebar Data="@sidebarInfo" />
 
 @code{
+    private List<FolderModel> _folders = new List<FolderModel>();
+    private Entry[,] _entries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFolders();
+    }
+
     SidebarInfo sidebarInfo = new SidebarInfo
     {
         Brand = new SidebarBrandInfo
         {
             Text = "Bazaro"
         },
-        Items = new List<SidebarItemInfo>
-    {
-            new SidebarItemInfo { To = "#", Text = "Folder 1" },
-            new SidebarItemInfo
-            {
-                Text = "Folder 2",
-                SubItems = new List<SidebarItemInfo>
-            {
-                    new SidebarItemInfo { To = "#email/inbox", Text = "Note 1" },
-                    new SidebarItemInfo { To = "#email/compose", Text = "Note 2" },
-                }
-            },
-            new SidebarItemInfo
-            {
-                Text = "Folder 3",
-                SubItems = new List<SidebarItemInfo>
-            {
-                    new SidebarItemInfo { To = "#apps/todo", Text = "Note 1" }
-                }
-            },
-        }
+        Items = new List<SidebarItemInfo>{}
     };
+
+    private async Task LoadFolders()
+    {
+        // Get userID to retrieve folders and entries from the DB
+        var username = http.HttpContext.User.Identity.Name;
+        var userId = (await um.FindByNameAsync(username)).Id;
+        _folders = await fs.GetViewFolderStructureByuserId(userId);
+
+        var sidebarInfoItems = await MapFolderToSidebarItem(_folders);
+        foreach(var item in sidebarInfoItems)
+        {
+            sidebarInfo.Items.Add(item);
+        }
+    }
+
+    private async Task<List<SidebarItemInfo>> MapFolderToSidebarItem(List<FolderModel> folders)
+    {
+        List<SidebarItemInfo> sideBaritems = new();
+
+        foreach(var folder in folders)
+        {
+            SidebarItemInfo item = new();
+            item.Text = folder.Title;
+
+            if(folder.SubFolders is not null)
+            {
+                item.SubItems = await MapFolderToSidebarItem(folder.SubFolders);    
+            }
+            else
+            {
+                item.SubItems = new();
+            }
+
+            // Get all entries from the current folder
+            var entries = await es.GetViewEntriesByFolderId(folder.Id);
+
+            foreach(var entry in entries)
+            {
+                SidebarItemInfo entryItem = new();
+                entryItem.Text = entry.Title;
+                entryItem.Tooltip = entry.Id.ToString();
+
+                item.SubItems.Add(entryItem);
+            }
+
+            sideBaritems.Add(item);
+        }
+        return sideBaritems;
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using Bazaro.Web.Models;
 using Bazaro.Web.Models.References;
-using Bazaro.Web.Services.Models;
+using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bazaro.Web.Services.Queries.Folders
@@ -9,13 +9,13 @@ namespace Bazaro.Web.Services.Queries.Folders
     {
         public class Query
         {
-            public int UserId { get; set; }
+            public string UserId { get; set; }
         }
 
         public static async Task<List<FolderModel>> Handle(BazaroContext context, Query request)
         {
             var topFolders = await context.Set<UserFolderReference>()
-                .Where(x => x.UserId == request.UserId && x.Folder.PreviousFolder == null)
+                .Where(x => x.UserId == request.UserId && (x.Folder.PreviousFolder == null || x.IsShared))
                 .Select(x => x.Folder)
                 .ToListAsync();
 
