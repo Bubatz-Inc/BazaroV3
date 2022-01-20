@@ -2,6 +2,7 @@
 using Bazaro.Web.Models.References;
 using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace Bazaro.Web.Services.Queries.Entries
 {
@@ -44,7 +45,11 @@ namespace Bazaro.Web.Services.Queries.Entries
 
             return new ItemModel
             {
-                ContentType = item.ContentType.Title,
+                ContentType = new ContentTypeModel
+                {
+                    Id = item.ContentType.Id,
+                    Title = item.ContentType.Title
+                },
                 Content = item.Content,
                 NextItem = CreateEntryModel(item.NextItem)
             };
