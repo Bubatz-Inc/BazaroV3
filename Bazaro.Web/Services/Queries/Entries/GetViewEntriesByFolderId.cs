@@ -44,7 +44,7 @@ namespace Bazaro.Web.Services.Queries.Entries
 
             return new ItemModel
             {
-                ContentType = item.ContentType.Title,
+                ContentType = new ContentTypeModel { Title = item.ContentType.Title },
                 Content = item.Content,
                 NextItem = CreateEntryModel(item.NextItem)
             };

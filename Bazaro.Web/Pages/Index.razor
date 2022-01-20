@@ -13,15 +13,19 @@
 			</div>
     </div>
     <br/>
-    <!-- ROW 3 -->
-    <div class="row">
-        <div class="col-6">
-            <a href="Identity/Account/Login" class="btn btn-outline-primary btns">Log in</a>
-        </div>
-        <div class="col-6">
-            <a href="Identity/Account/Register" class="btn btn-outline-primary btns">Register</a>
-        </div>
-    </div>
+    <AuthorizeView>
+        <NotAuthorized>
+            <!-- ROW 3 Login -->
+            <div class="row">
+                <div class="col-6">
+                    <a href="Identity/Account/Login" class="btn btn-outline-primary btns">Log in</a>
+                </div>
+                <div class="col-6">
+                    <a href="Identity/Account/Register" class="btn btn-outline-primary btns">Register</a>
+                </div>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 
 	<br/>
 	<br/>
