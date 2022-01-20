@@ -54,6 +54,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<EntryService>();
 builder.Services.AddTransient<FolderService>();
 builder.Services.AddTransient<ItemService>();
+builder.Services.AddTransient<EntryRelationService>();
 
 builder.Services
     .AddBlazorise(options =>
