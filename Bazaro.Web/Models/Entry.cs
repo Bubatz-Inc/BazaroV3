@@ -11,9 +11,6 @@ namespace Bazaro.Web.Models
         [MaxLength(1024)]
         public string Description { get; set; }
 
-        public List<EntryTag> EntryTag { get; set; }
-        public List<int> EntryTagId { get; set; }
-
         public Item StartItem { get; set; }
         public int? StartItemId { get; set; }
     }

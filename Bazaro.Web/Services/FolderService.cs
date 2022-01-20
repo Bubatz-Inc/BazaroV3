@@ -1,6 +1,6 @@
-﻿using Bazaro.Web;
-using Bazaro.Web.Services.Models;
+﻿using Bazaro.Web.Services.Commands.Folders;
 using Bazaro.Web.Services.Queries.Folders;
+using Bazaro.Web.Services.ViewModels;
 
 namespace Bazaro.Web.Services
 {
@@ -13,9 +13,14 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<FolderModel>> GetViewFolderStructureByuserId(int userId) => GetViewFolderStructureByUserId.Handle(_context, new GetViewFolderStructureByUserId.Query
+        public Task<List<FolderModel>> GetViewFolderStructureByuserId(string userId) => GetViewFolderStructureByUserId.Handle(_context, new GetViewFolderStructureByUserId.Query
         {
             UserId = userId
         });
+
+        public Task Insert(InsertFolder.Command command) => InsertFolder.Handle(_context, command);
+
+        public Task Update(UpdateFolder.Command command) => UpdateFolder.Handle(_context, command);
+
     }
 }

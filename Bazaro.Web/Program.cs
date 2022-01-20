@@ -2,14 +2,12 @@ using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Data;
 using Bazaro.Web.Models;
-using Bazaro.Web;
+using Bazaro.Web.Services;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,13 +48,17 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+builder.Services.AddTransient<EntryService>();
+builder.Services.AddTransient<FolderService>();
+builder.Services.AddTransient<ItemService>();
+
 builder.Services
-      .AddBlazorise(options =>
-      {
-          options.ChangeTextOnKeyPress = true; // optional
-      })
-      .AddBootstrap5Providers()
-      .AddFontAwesomeIcons();
+    .AddBlazorise(options =>
+    {
+        options.ChangeTextOnKeyPress = true; // optional
+    })
+    .AddBootstrap5Providers()
+    .AddFontAwesomeIcons();
 
 var app = builder.Build();
 
