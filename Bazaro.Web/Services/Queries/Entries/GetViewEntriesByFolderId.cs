@@ -12,22 +12,27 @@ namespace Bazaro.Web.Services.Queries.Entries
             public int? FolderId { get; set; }
         }
 
-        public static Task<List<EntryModel>> Handle(BazaroContext context, Query request)
+        public static async Task<List<EntryModel>> Handle(BazaroContext context, Query request)
         {
-            return context.Set<FolderEntryReference>()
-                .Include(x => x.Entry)
-                .Join(context.Set<UserFolderReference>(),
-                    fer => fer.FolderId,
-                    ufr => ufr.FolderId,
-                    (fer, ufr) => new { fer, ufr })
-                .Where(x => x.ufr.UserId == request.UserId && x.ufr.FolderId == request.FolderId)
-                .Select(x => new EntryModel
-                {
-                    Id = x.fer.Entry.Id,
-                    Description = x.fer.Entry.Description,
-                    Title = x.fer.Entry.Title,
-                    StartItemId = x.fer.Entry.StartItemId
-                }).ToListAsync();
+            var userFolders = await context.Set<UserFolderReference>()
+                .Where(x => x.UserId == request.UserId)
+                .ToListAsync();
+
+            var entries = new List<EntryModel>();
+            foreach (var item in userFolders)
+            {
+                entries.AddRange(await context.Set<FolderEntryReference>()
+                    .Where(x => x.FolderId == item.FolderId)
+                    .Select(x => new EntryModel
+                    {
+                        Id = x.Entry.Id,
+                        Title = x.Entry.Title,
+                        Description = x.Entry.Description,
+                        StartItemId = x.Entry.StartItemId,
+                    }).ToListAsync());
+            }
+
+            return entries;
         }
     }
 }
