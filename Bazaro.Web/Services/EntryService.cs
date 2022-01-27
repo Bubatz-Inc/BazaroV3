@@ -13,10 +13,9 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<EntryModel>> GetViewEntriesByFolderId(int folderId) => Queries.Entries.GetViewEntriesByFolderId.Handle(_context, new GetViewEntriesByFolderId.Query
-        {
-            FolderId = folderId
-        });
+        public Task<List<EntryModel>> GetViewEntriesByFolderId(GetViewEntriesByFolderId.Query request) => Queries.Entries.GetViewEntriesByFolderId.Handle(_context, request);
+
+        public Task<List<EntryModel>> GetViewEntriesByTitle(GetEntriesByTitle.Query request) => GetEntriesByTitle.Handler(_context, request);
 
         public Task Insert(InsertEntry.Command command) => InsertEntry.Handle(_context, command);
 
