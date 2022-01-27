@@ -13,7 +13,7 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<FolderModel>> GetViewFolderStructureByuserId(string userId) => GetViewFolderStructureByUserId.Handle(_context, new GetViewFolderStructureByUserId.Query
+        public Task<FolderModel> GetViewFolderStructureByuserId(string userId) => GetViewFolderStructureByUserId.Handle(_context, new GetViewFolderStructureByUserId.Query
         {
             UserId = userId
         });
