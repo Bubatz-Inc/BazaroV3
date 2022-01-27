@@ -1,14 +1,26 @@
 ﻿@page "/calendar"
+@inject IHttpContextAccessor http
+@inject CalendarService cs
+@inject UserManager<User> um
+
 <h3>Calendar</h3>
 
-<AntDesign.Calendar DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+<AntDesign.Calendar Value=@PanelDate OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+
+@*Edit / Add Entry Modal*@
+<Modal Title="@("Title")"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <p>asdf</p>
+</Modal>
 
 @code
 {
     class ListData
     {
-        public string Content;
-        public int CalendarEntryId;
+        public EntryModel Entry;
         public DateTime StartDate;
     }
 
@@ -21,28 +33,28 @@
             case 8:
                 listData = new List<ListData>
                 {
-                    new ListData { StartDate = value.AddHours(1), CalendarEntryId = 1, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(2), CalendarEntryId = 2, Content = "This is usual event." },
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1 }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2 }},
                 };
                 break;
             case 10:
                 listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), CalendarEntryId = 3, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(2), CalendarEntryId = 4, Content = "This is usual event." },
-                    new ListData { StartDate = value.AddHours(3), CalendarEntryId = 5, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(4), CalendarEntryId = 6, Content = "This is usual event." },
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3 }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4 }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5 }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6 }},
                 };
                 break;
             case 15:
                 listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), CalendarEntryId = 7, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(2), CalendarEntryId = 8, Content = "This is usual event." },
-                    new ListData { StartDate = value.AddHours(3), CalendarEntryId = 9, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(4), CalendarEntryId = 10, Content = "This is usual event." },
-                    new ListData { StartDate = value.AddHours(5), CalendarEntryId = 11, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(6), CalendarEntryId = 12, Content = "This is usual event." },
-                    new ListData { StartDate = value.AddHours(7), CalendarEntryId = 13, Content = "This is warning event." },
-                    new ListData { StartDate = value.AddHours(8), CalendarEntryId = 14, Content = "This is usual event." },
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7 }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8 }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9 }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10 }},
+                    new ListData { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11 }},
+                    new ListData { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12 }},
+                    new ListData { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13 }},
+                    new ListData { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14 }},
                 };
                 break;
         }
@@ -50,25 +62,82 @@
         return listData ?? new List<ListData>();
     }
 
+    private List<ListData> GetListData(DateTime value)
+    {
+        List<ListData> ret = new();
+        foreach(var entry in calendarEntries)
+        {
+            ret.Add(new ListData
+            {
+                StartDate = entry.StartDate,
+                Entry = entry.Entry
+            });
+        }
+
+        return ret;
+    } 
+
     private RenderFragment DateCellRender(DateTime value)
     {
-        var listData = GetListDataTest(value);
+        List<ListData> listData = null;
+        if (getCurrentUserId() is null)
+        {
+            listData = GetListDataTest(value);
+        }
+        else
+        {
+            listData = GetListData(value);
+        }
         return
-    @<Template>
+        @<Template>
         <ul class="events">
             @foreach (var data in listData)
                 {
-                    <li key="@data.CalendarEntryId">
-                        <div @onclick="@(() => {OnEventClick(data.CalendarEntryId);})"> @data.StartDate.Hour : @data.StartDate.Minute - @data.Content </div>
+                    <li key="@data.Entry">
+                        <div @onclick="@(() => {OnEventClick(data);})"> @data.StartDate.Hour : @data.StartDate.Minute - @data.Entry.Title </div>
                     </li>
                 }
             </ul>
-        </Template>;
+        </Template>
+    ;
     }
 
-    private void OnEventClick(int id)
+    private List<CalenderEntryModel> calendarEntries { get; set; }
+
+    private DateTime PanelDate = DateTime.Now;
+    private async Task LoadEntries()
     {
-        Console.WriteLine(id);
+        var firstDay = new DateTime(PanelDate.Year, PanelDate.Month, 1);
+        var userId = await getCurrentUserId();
+        if (userId is null) return;
+        calendarEntries = await cs.GetCalendarEntries(new Services.Queries.CalendarEntries.GetCalenderEntriesByUserId.Query
+            {
+                UserId = userId,
+                StartDate = firstDay,
+                EndDate = firstDay.AddMonths(1).AddDays(-1)
+            });
+
+        StateHasChanged();
+    }
+
+    private void OnPanelChange(DateTime value, string mode)
+    {
+        PanelDate = value;
+        LoadEntries();
+    }
+
+    private async Task<string> getCurrentUserId()
+    {
+        var username = http.HttpContext.User?.Identity.Name;
+        if (username is null) return null;
+        return (await um.FindByNameAsync(username)).Id;
+    }
+
+    public ListData currentModalData = null;
+
+    private void OnEventClick(ListData data)
+    {
+        ShowModal();
     }
 
     private int? GetMonthData(DateTime value)
@@ -96,7 +165,37 @@
             <section>@num</section>
             <span>Backlog number</span>
         </div>
-    </Template>;
+    </Template>
+    ;
+    }
+
+    bool _visible = false;
+    bool _confirmLoading = false;
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEntries();
+        await base.OnInitializedAsync();
     }
 }
 
