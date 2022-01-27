@@ -51,6 +51,7 @@
     ;
 
 
+    private FolderModel _rootFolder = new();
     private List<FolderModel> _folders = new();
     private List<EntryModel> _toplvlEntries = new();
 
@@ -70,8 +71,14 @@
             FolderId = null
         });
 
-        var toplvlFolders = await fs.GetViewFolderStructureByuserId(userId);
-        _folders = await LoadFoldersAndSubFolders(toplvlFolders);
+        // Load root folder
+        FolderModel rootFolder = await fs.GetViewFolderStructureByuserId(userId);
+
+        if(rootFolder.SubFolders is not null)
+        {
+            // Load subfolders into folders using recursive method
+            _folders = await LoadFoldersAndSubFolders(rootFolder.SubFolders);
+        }
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
@@ -132,8 +139,6 @@
             Title = "New Note",
             Description = ""
         });
-
-        await LoadFolders();
     }
 
     // Query to create new Folder
@@ -146,11 +151,10 @@
         // Send query
         await fs.Insert(new InsertFolder.Command
         {
+            PreviousFolder = _rootFolder.Id,
             Title = "New Folder",
             Description = "",
             UserId = userId
         });
-
-        await LoadFolders();
     }
 }

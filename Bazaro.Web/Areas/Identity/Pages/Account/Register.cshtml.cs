@@ -38,7 +38,8 @@ namespace Bazaro.Web.Areas.Identity.Pages.Account
             IUserStore<User> userStore,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            FolderService folderService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -46,6 +47,7 @@ namespace Bazaro.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _folderService = folderService;
         }
 
         /// <summary>
