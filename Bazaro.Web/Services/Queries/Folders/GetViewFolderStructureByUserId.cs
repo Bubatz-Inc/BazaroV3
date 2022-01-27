@@ -12,23 +12,19 @@ namespace Bazaro.Web.Services.Queries.Folders
             public string UserId { get; set; }
         }
 
-        public static async Task<List<FolderModel>> Handle(BazaroContext context, Query request)
+        public static async Task<FolderModel> Handle(BazaroContext context, Query request)
         {
-            var topFolders = await context.Set<UserFolderReference>()
+            var topFolder = await context.Set<UserFolderReference>()
+                .Include(x => x.Folder)
+                .ThenInclude(x => x.SubFolder)
                 .Where(x => x.UserId == request.UserId && (x.Folder.PreviousFolder == null || x.IsShared))
                 .Select(x => x.Folder)
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            var result = new List<FolderModel>();
-            foreach (var folder in topFolders)
-            {
-                result.Add(CreateFolderStructure(folder));
-            }
-
-            return result;
+            return CreateFolderStructure(context, topFolder);
         }
 
-        private static FolderModel CreateFolderStructure(Folder folder)
+        private static FolderModel CreateFolderStructure(BazaroContext context, Folder folder)
         {
             if(folder == null)
             {
@@ -48,7 +44,11 @@ namespace Bazaro.Web.Services.Queries.Folders
             var list = new List<FolderModel>();
             foreach (var subFolder in folder.SubFolder)
             {
-                var tempFolder = CreateFolderStructure(subFolder);
+                var nextFolder = context.Set<Folder>()
+                    .Include(x => x.SubFolder)
+                    .FirstOrDefault(x => x.Id == subFolder.Id);
+
+                var tempFolder = CreateFolderStructure(context, nextFolder);
 
                 if (tempFolder != null)
                     list.Add(tempFolder);
