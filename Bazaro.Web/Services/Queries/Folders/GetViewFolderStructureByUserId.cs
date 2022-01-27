@@ -30,9 +30,21 @@ namespace Bazaro.Web.Services.Queries.Folders
 
         private static FolderModel CreateFolderStructure(Folder folder)
         {
-            if (folder == null || folder.SubFolder == null || folder.SubFolder.Count() == 0)
+            if(folder == null)
+            {
                 return null;
-
+            }
+            else if (folder.SubFolder == null || folder.SubFolder.Count() == 0)
+            {
+                return new FolderModel
+                {
+                    Id = folder.Id,
+                    Title = folder.Title,
+                    Description = folder.Description,
+                    SubFolders = null
+                };
+            }
+                
             var list = new List<FolderModel>();
             foreach (var subFolder in folder.SubFolder)
             {
