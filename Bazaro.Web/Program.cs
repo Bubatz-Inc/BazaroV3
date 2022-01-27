@@ -57,6 +57,8 @@ builder.Services.AddTransient<ItemService>();
 builder.Services.AddTransient<EntryRelationService>();
 builder.Services.AddTransient<StatisticService>();
 
+builder.Services.AddAntDesign();
+
 builder.Services
     .AddBlazorise(options =>
     {
