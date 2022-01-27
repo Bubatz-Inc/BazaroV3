@@ -10,51 +10,75 @@
 @inject EntryService es
 @inject IHttpContextAccessor http
 @inject UserManager<User> um
-@using Blazorise
-@using Blazorise.Sidebar
-@using Blazorise.Markdown
-@using Blazorise.TreeView
-@using Blazorise.Charts
 
-<div class="container" style="width: 220px; background-color: #343a40">
-    <div class="row">
-        <div class="col-sm">
-            @if(_folders.Count == 0)
-            {
-                <button class="btn btn-primary" disabled=true @onclick="CreateEntry" style="margin-left: 15px; margin-right: -15px;">+ Note</button>
-            }
-            else
-            {
-                <button class="btn btn-primary" @onclick="CreateEntry" style="margin-left: 15px; margin-right: -15px;">+ Note</button>
-            }
-        </div>
-        <div class="col-sm">
-            <button class="btn btn-primary" @onclick="CreateFolder" style="margin-right: 15px; margin-left: -15px">+ Folder</button>
-        </div>
-    </div>
-    <div class="row">
-        <Sidebar Data="@sidebarInfo"/>
-    </div>
-</div>
+<Menu Style="width: 256px;"
+      DefaultSelectedKeys=@(new[] { "1" })
+      DefaultOpenKeys=@(new[] { "sub1" })
+      Mode=@MenuMode.Inline>
+      <MenuItemGroup>
+        <MenuItem>
+            <Button @onclick="CreateEntry">Create Entry</Button>
+        </MenuItem>
+        <MenuItem>
+            <Button @onclick="CreateFolder">Create Folder</Button>
+        </MenuItem>
+      </MenuItemGroup>
+      @RenderFolderTree(_folders)
+</Menu>
 
-@code{
+@code
+{
+    RenderFragment sub1Title =
+    @<span>
+        <Icon Type="mail" Theme="outline"></Icon>
+        <span>Navigation One</span>
+    </span>;
+
+    RenderFragment sub2Title =
+    @<span>
+        <Icon Type="appstore" Theme="outline"></Icon>
+        <span>Navigation Two</span>
+    </span>;
+
+    RenderFragment sub4Title =
+    @<span>
+        <Icon Type="setting" Theme="outline"></Icon>
+        <span>Navigation Three</span>
+        </span>
+        ;
+
+
     private List<FolderModel> _folders = new();
-    private Entry[,] _entries;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadFolders();
     }
 
-    SidebarInfo sidebarInfo = new SidebarInfo
+    // Render fragment for tree view
+    private RenderFragment RenderFolderTree(List<FolderModel> folders)
     {
-        Brand = new SidebarBrandInfo
-        {
-            Text = "Bazaro"
-
-        },
-        Items = new List<SidebarItemInfo>{}
-    };
+        return 
+        @<div>
+            @foreach(var folder in folders)
+            {
+                <MenuItemGroup Key="@folder.Id.ToString()" Title="@folder.Title">
+                @if(folder.Entries is not null)
+                {
+                    @foreach(var entry in folder.Entries)
+                    {
+                        <MenuItem Key="@entry.Id.ToString()">@entry.Title</MenuItem>
+                    }
+                    @if(folder.SubFolders is not null)
+                    {
+                        RenderFolderTree(folder.SubFolders);
+                    }        
+                }
+                </MenuItemGroup>
+            }
+        </div>
+    ;
+    }
 
     private async Task LoadFolders()
     {
@@ -62,51 +86,28 @@
         var username = http.HttpContext.User.Identity.Name;
         var userId = (await um.FindByNameAsync(username)).Id;
 
-        _folders = await fs.GetViewFolderStructureByuserId(userId);
-
-        var sidebarInfoItems = await MapFolderToSidebarItem(_folders);
-        foreach(var item in sidebarInfoItems)
-        {
-            sidebarInfo.Items.Add(item);
-        }
+        var toplvlFolders = await fs.GetViewFolderStructureByuserId(userId);
+        _folders = await LoadFolders(toplvlFolders);
     }
 
-    private async Task<List<SidebarItemInfo>> MapFolderToSidebarItem(List<FolderModel> folders)
+    private async Task<List<FolderModel>> LoadFolders(List<FolderModel> folders)
     {
-        List<SidebarItemInfo> sideBaritems = new();
+        List<FolderModel> returnFolders = new();
 
         foreach(var folder in folders)
         {
-            SidebarItemInfo item = new();
-            item.Text = folder.Title;
-
             if(folder.SubFolders is not null)
             {
-                item.SubItems = await MapFolderToSidebarItem(folder.SubFolders);    
+                folder.SubFolders = await LoadFolders(folder.SubFolders);
             }
-            else
-            {
-                item.SubItems = new();
-            }
-
-            // Get all entries from the current folder
-            var entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
-            {
-                FolderId = folder.Id
-            });
-
-            foreach(var entry in entries)
-            {
-                SidebarItemInfo entryItem = new();
-                entryItem.Text = entry.Title;
-                entryItem.Tooltip = entry.Id.ToString();
-
-                item.SubItems.Add(entryItem);
-            }
-
-            sideBaritems.Add(item);
+            returnFolders.Add(folder);
         }
-        return sideBaritems;
+        return returnFolders;
+    }
+
+    private async Task LoadFolderEntries(FolderModel folder)
+    {
+        folder.Entries = await es.GetViewEntriesByFolderId(folder.Id);
     }
 
     private async Task CreateEntry()
@@ -115,7 +116,7 @@
         await es.Insert(new InsertEntry.Command
         {
             Title = "New Note",
-            Description = "",
+            Description = ""
         });
 
         await LoadFolders();

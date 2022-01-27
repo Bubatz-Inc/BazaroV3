@@ -1,28 +1,52 @@
-﻿<Sidebar class="customsidebar" style="width: 56px;">
-    <SidebarContent>
-        <SidebarBrand>
-            <img src="/icon.png" height="55" width="55" href="#"/>
-        </SidebarBrand>
-        <AuthorizeView>
-        <Authorized>
-        <SidebarNavigation>
-            <SidebarItem>
-                <SidebarLink To="dashboard">
-                    <Icon Name="IconName.Home"/>
-                </SidebarLink>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink To="notes">
-                    <Icon Name="IconName.StickyNote"/>
-                </SidebarLink>
-            </SidebarItem>
-            <SidebarItem>
-                <SidebarLink To="calendar">
-                    <Icon Name="IconName.CalendarWeek" />
-                </SidebarLink>
-            </SidebarItem>
-        </SidebarNavigation>
-        </Authorized>
-        </AuthorizeView>
-    </SidebarContent>
-</Sidebar>
+﻿@inject NavigationManager nav
+
+<Menu Style="width: 56px;"
+      Class="customsidebar"
+      DefaultSelectedKeys=@(new[] { "1" })
+      DefaultOpenKeys=@(new[] { "sub1" })
+      Mode=@MenuMode.Inline>
+        <MenuItem Key="1" @onclick="@(() => NavToStr("/dashboard"))">
+			<IconTemplate>
+                <Icon Type="Apple" Theme="outline"></Icon>
+				<IconFont Type="icon-c-sharp-l" />
+			</IconTemplate>
+		</MenuItem>
+        <MenuItem Key="1" @onclick="@(() => NavToStr("/dashboard"))">
+			<IconTemplate>
+                <Icon Type="home" Theme="outline"></Icon>
+				<IconFont Type="icon-c-sharp-l" />
+			</IconTemplate>
+		</MenuItem>
+        <MenuItem Key="1" @onclick="@(() => NavToStr("/calendar"))">
+			<IconTemplate>
+                <Icon Type="calendar" Theme="outline"></Icon>
+				<IconFont Type="icon-c-sharp-l" />
+			</IconTemplate>
+		</MenuItem>
+</Menu>
+
+@code
+{
+    private async Task NavToStr(string NavString)
+    {
+        nav.NavigateTo(NavString);
+    }
+
+    RenderFragment sub1Title =
+    @<span>
+        <Icon Type="mail" Theme="outline"></Icon>
+        <span>Navigation One</span>
+    </span>;
+
+    RenderFragment sub2Title =
+    @<span>
+        <Icon Type="appstore" Theme="outline"></Icon>
+        <span>Navigation Two</span>
+    </span>;
+
+    RenderFragment sub4Title =
+    @<span>
+        <Icon Type="setting" Theme="outline"></Icon>
+        <span>Navigation Three</span>
+    </span>;
+}
