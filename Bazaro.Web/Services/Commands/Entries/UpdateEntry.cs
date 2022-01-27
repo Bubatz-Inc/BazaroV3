@@ -35,6 +35,7 @@ namespace Bazaro.Web.Services.Commands.Entries
                 var reference = await context.Set<FolderEntryReference>().FirstOrDefaultAsync(x => x.EntryId == request.Id || x.FolderId == request.OldFolderId);
 
                 reference.FolderId = request.NewFolderId;
+                reference.Updated = DateTime.Now;
             }
 
             await context.SaveChangesAsync();

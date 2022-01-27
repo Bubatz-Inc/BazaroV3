@@ -13,7 +13,7 @@ namespace Bazaro.Web.Services.Commands.Entries
             public int? FolderId { get; set; }
         }
 
-        public static Task Handle(BazaroContext context, Command request)
+        public static async Task Handle(BazaroContext context, Command request)
         {
             var entry = new Entry
             {
@@ -24,13 +24,16 @@ namespace Bazaro.Web.Services.Commands.Entries
 
             context.Add(entry);
 
+            await context.SaveChangesAsync();
+
             context.Add(new FolderEntryReference
             {
                 EntryId = entry.Id,
-                FolderId = request.FolderId
+                FolderId = request.FolderId,
+                Created = DateTime.Now,
             });
 
-            return context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
     }
 }
