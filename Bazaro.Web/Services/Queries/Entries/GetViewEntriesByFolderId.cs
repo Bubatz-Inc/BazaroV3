@@ -1,8 +1,6 @@
-﻿using Bazaro.Web.Models;
-using Bazaro.Web.Models.References;
+﻿using Bazaro.Web.Models.References;
 using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 
 namespace Bazaro.Web.Services.Queries.Entries
 {
@@ -10,49 +8,26 @@ namespace Bazaro.Web.Services.Queries.Entries
     {
         public class Query
         {
-            public int FolderId { get; set; }
+            public string UserId { get; set; }
+            public int? FolderId { get; set; }
         }
 
-        public static async Task<List<EntryModel>> Handle(BazaroContext context, Query request)
+        public static Task<List<EntryModel>> Handle(BazaroContext context, Query request)
         {
-            var entryList = await context.Set<FolderEntryReference>()
+            return context.Set<FolderEntryReference>()
                 .Include(x => x.Entry)
-                .ThenInclude(x => x.StartItem)
-                .ThenInclude(x => x.NextItem)
-                .Where(x => x.FolderId == request.FolderId)
-                .Select(x => x.Entry)
-                .ToListAsync();
-
-            var result = new List<EntryModel>();
-            foreach (var entry in entryList)
-            {
-                var model = new EntryModel
+                .Join(context.Set<UserFolderReference>(),
+                    fer => fer.FolderId,
+                    ufr => ufr.FolderId,
+                    (fer, ufr) => new { fer, ufr })
+                .Where(x => x.ufr.UserId == request.UserId && x.ufr.UserId == request.UserId)
+                .Select(x => new EntryModel
                 {
-                    Id = entry.Id,
-                    Title = entry.Title,
-                    Description = entry.Description,
-                    StartItemId = entry.StartItemId
-                };
-            }
-
-            return result;
-        }
-
-        private static ItemModel CreateEntryModel(Item item)
-        {
-            if (item == null)
-                return null;
-
-            return new ItemModel
-            {
-                ContentType = new ContentTypeModel
-                {
-                    Id = item.ContentType.Id,
-                    Title = item.ContentType.Title
-                },
-                Content = item.Content,
-                NextItem = CreateEntryModel(item.NextItem)
-            };
+                    Id = x.fer.Entry.Id,
+                    Description = x.fer.Entry.Description,
+                    Title = x.fer.Entry.Title,
+                    StartItemId = x.fer.Entry.StartItemId
+                }).ToListAsync();
         }
     }
 }
