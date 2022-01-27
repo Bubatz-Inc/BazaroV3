@@ -14,8 +14,8 @@ namespace Bazaro.Web.Services.Commands.Entries
 
             public int? StartItemId { get; set; }
 
-            public int OldFolderId { get; set; }
-            public int NewFolderId { get; set; }
+            public int? OldFolderId { get; set; }
+            public int? NewFolderId { get; set; }
         }
 
         public static async Task Handle(BazaroContext context, Command request)

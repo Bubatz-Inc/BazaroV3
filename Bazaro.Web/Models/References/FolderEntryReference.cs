@@ -1,17 +1,13 @@
-﻿using Bazaro.Web.Models;
-using Bazaro.Web.Models.Base;
-using System.ComponentModel.DataAnnotations;
+﻿using Bazaro.Web.Models.Base;
 
 namespace Bazaro.Web.Models.References
 {
-    public record class FolderEntryReference : IEntity
+    public record class FolderEntryReference : IdEntity
     {
-        [Required]
         public Folder Folder { get; set; }
-        public int FolderId { get; set; }
+        public int? FolderId { get; set; }
 
-        [Required]
         public Entry Entry { get; set; }
-        public int EntryId { get; set; }
+        public int? EntryId { get; set; }
     }
 }

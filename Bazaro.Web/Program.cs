@@ -1,6 +1,5 @@
 using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
-using Bazaro.Web.Data;
 using Bazaro.Web.Models;
 using Bazaro.Web.Services;
 using Blazorise;
@@ -46,8 +45,6 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddTransient<EntryService>();
 builder.Services.AddTransient<FolderService>();
 builder.Services.AddHttpContextAccessor();
 
