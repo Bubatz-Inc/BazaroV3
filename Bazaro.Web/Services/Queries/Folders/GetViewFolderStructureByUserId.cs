@@ -21,10 +21,10 @@ namespace Bazaro.Web.Services.Queries.Folders
                 .Select(x => x.Folder)
                 .FirstOrDefaultAsync();
 
-            return CreateFolderStructure(rootFolder);
+            return CreateFolderStructure(context, rootFolder);
         }
 
-        private static FolderModel CreateFolderStructure(Folder folder)
+        private static FolderModel CreateFolderStructure(BazaroContext context, Folder folder)
         {
             if(folder == null)
             {
@@ -44,7 +44,11 @@ namespace Bazaro.Web.Services.Queries.Folders
             var list = new List<FolderModel>();
             foreach (var subFolder in folder.SubFolder)
             {
-                var tempFolder = CreateFolderStructure(subFolder);
+                var nextFolder = context.Set<Folder>()
+                    .Include(x => x.SubFolder)
+                    .FirstOrDefault(x => x.Id == subFolder.Id);
+
+                var tempFolder = CreateFolderStructure(context, nextFolder);
 
                 if (tempFolder != null)
                     list.Add(tempFolder);
