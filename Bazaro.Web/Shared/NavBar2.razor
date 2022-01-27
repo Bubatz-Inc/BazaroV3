@@ -107,7 +107,9 @@
 
     private async Task LoadFolderEntries(FolderModel folder)
     {
-        folder.Entries = await es.GetViewEntriesByFolderId(folder.Id);
+        folder.Entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
+            FolderId = folder.Id
+        });
     }
 
     private async Task CreateEntry()
