@@ -20,7 +20,7 @@ namespace Bazaro.Web.Services.Queries.Entries
                     fer => fer.FolderId,
                     ufr => ufr.FolderId,
                     (fer, ufr) => new { fer, ufr })
-                .Where(x => x.ufr.UserId == request.UserId && x.ufr.UserId == request.UserId)
+                .Where(x => x.ufr.UserId == request.UserId && x.ufr.FolderId == request.FolderId)
                 .Select(x => new EntryModel
                 {
                     Id = x.fer.Entry.Id,
