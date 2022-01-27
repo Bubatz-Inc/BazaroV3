@@ -11,7 +11,8 @@
 @inject IHttpContextAccessor http
 @inject UserManager<User> um
 
-<Menu Style="width: 256px;"
+<Menu Style="width: 256px; height: 100%;"
+      Theme=theme
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
@@ -28,6 +29,8 @@
 
 @code
 {
+    MenuTheme theme = MenuTheme.Dark;
+
     RenderFragment sub1Title =
     @<span>
         <Icon Type="mail" Theme="outline"></Icon>
@@ -44,15 +47,47 @@
     @<span>
         <Icon Type="setting" Theme="outline"></Icon>
         <span>Navigation Three</span>
-        </span>
-        ;
+    </span>
+    ;
 
 
     private List<FolderModel> _folders = new();
+    private List<EntryModel> _toplvlEntries = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadFolders();
+    }
+
+    private async Task LoadFolders()
+    {
+        // Get userID to retrieve folders and entries from the DB
+        var username = http.HttpContext.User.Identity.Name;
+        var userId = (await um.FindByNameAsync(username)).Id;
+
+        _toplvlEntries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+        {
+            FolderId = null
+        });
+
+        var toplvlFolders = await fs.GetViewFolderStructureByuserId(userId);
+        _folders = await LoadFoldersAndSubFolders(toplvlFolders);
+    }
+
+    // Recursive method to return folders and fill subfolders with subfolders
+    private async Task<List<FolderModel>> LoadFoldersAndSubFolders(List<FolderModel> folders)
+    {
+        List<FolderModel> returnFolders = new();
+
+        foreach(var folder in folders)
+        {
+            if(folder.SubFolders is not null)
+            {
+                folder.SubFolders = await LoadFoldersAndSubFolders(folder.SubFolders);
+            }
+            returnFolders.Add(folder);
+        }
+        return returnFolders;
     }
 
     // Render fragment for tree view
@@ -80,31 +115,7 @@
     ;
     }
 
-    private async Task LoadFolders()
-    {
-        // Get userID to retrieve folders and entries from the DB
-        var username = http.HttpContext.User.Identity.Name;
-        var userId = (await um.FindByNameAsync(username)).Id;
-
-        var toplvlFolders = await fs.GetViewFolderStructureByuserId(userId);
-        _folders = await LoadFolders(toplvlFolders);
-    }
-
-    private async Task<List<FolderModel>> LoadFolders(List<FolderModel> folders)
-    {
-        List<FolderModel> returnFolders = new();
-
-        foreach(var folder in folders)
-        {
-            if(folder.SubFolders is not null)
-            {
-                folder.SubFolders = await LoadFolders(folder.SubFolders);
-            }
-            returnFolders.Add(folder);
-        }
-        return returnFolders;
-    }
-
+    // Loads a given folder's entries
     private async Task LoadFolderEntries(FolderModel folder)
     {
         folder.Entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
@@ -112,9 +123,10 @@
         });
     }
 
+    // Query to create new Note / Entry
     private async Task CreateEntry()
     {
-        // Create new entry(note)
+        // Send query
         await es.Insert(new InsertEntry.Command
         {
             Title = "New Note",
@@ -124,13 +136,14 @@
         await LoadFolders();
     }
 
+    // Query to create new Folder
     private async Task CreateFolder()
     {
         string userId = (await um
             .FindByNameAsync(http.HttpContext.User.Identity.Name))
             .Id;
 
-        // Create new note
+        // Send query
         await fs.Insert(new InsertFolder.Command
         {
             Title = "New Folder",

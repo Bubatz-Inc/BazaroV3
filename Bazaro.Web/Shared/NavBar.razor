@@ -1,6 +1,7 @@
 ﻿@inject NavigationManager nav
 
-<Menu Style="width: 56px;"
+<Menu Style="width: 56px; height: 100%;"
+      Theme=theme   
       Class="customsidebar"
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
@@ -27,6 +28,8 @@
 
 @code
 {
+    MenuTheme theme = MenuTheme.Dark;
+
     private async Task NavToStr(string NavString)
     {
         nav.NavigateTo(NavString);
