@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bazaro.Test.Base\Bazaro.Test.Base.csproj" />
     <ProjectReference Include="..\Bazaro.Web\Bazaro.Web.csproj" />
   </ItemGroup>
 

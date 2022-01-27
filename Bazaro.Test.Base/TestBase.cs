@@ -11,6 +11,8 @@ namespace Bazaro.Test.Base
         protected readonly Scope _scope;
         protected readonly BazaroContext _context;
 
+        //protected readonly 
+
         private readonly DatabaseBaseFixture _fixture;
 
         public TestBase(DatabaseBaseFixture fixture)

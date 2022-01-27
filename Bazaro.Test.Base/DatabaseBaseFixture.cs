@@ -15,10 +15,10 @@ namespace Bazaro.Test.Base
 
         public DatabaseBaseFixture()
         {
-
+            _container = BuildContainer();
         }
 
-        private Container BildContainer()
+        private Container BuildContainer()
         {
             var container = new Container();
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
