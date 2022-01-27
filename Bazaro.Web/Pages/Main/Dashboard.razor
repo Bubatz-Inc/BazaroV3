@@ -1,4 +1,9 @@
 ﻿@page "/dashboard"
+@using Blazorise
+@using Blazorise.Sidebar
+@using Blazorise.Markdown
+@using Blazorise.TreeView
+@using Blazorise.Charts
 
 <div class="container" style="padding-left: 10%; padding-right: 10%">
 <h3>Dashboard</h3>
@@ -7,7 +12,7 @@
         <div class="col-6">
         <div class="row fullsize">
             <div class="col">
-                <Card Margin="Margin.Is4.OnY" Class="fullsize">
+                <Blazorise.Card Margin="Margin.Is4.OnY" Class="fullsize">
                     <CardBody>
                         <CardTitle Size="5">Recently Opened</CardTitle>
                         <CardText>
@@ -21,13 +26,13 @@
                             </TreeView>
                         </CardText>
                     </CardBody>
-                </Card>
+                </Blazorise.Card>
             </div>
         </div>
 
         </div>
         <div class="col-6">
-            <Card Margin="Margin.Is4.OnY">
+            <Blazorise.Card Margin="Margin.Is4.OnY">
                     <CardBody>
                         <CardTitle Size="5">Today's events</CardTitle>
                         <CardText>
@@ -39,31 +44,31 @@
                             </div>
                         </CardText>
                     </CardBody>
-                </Card>
-                <Card Margin="Margin.Is4.OnY">
+                </Blazorise.Card>
+                <Blazorise.Card Margin="Margin.Is4.OnY">
                     <CardBody Class="fullsize">
                         <CardTitle Size="5">Quick note</CardTitle>
                         <CardText>
                                 <MemoEdit Rows="3"/>
-                                <Button Color="Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
+                                <Blazorise.Button Color="Blazorise.Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Blazorise.Button>
                         </CardText>
                     </CardBody>
-                </Card>
+                </Blazorise.Card>
         </div>
     </div>
 
     <!-- ROW 2 -->
     <div class="row top-buffer" >
         <div class="col-lg-12">
-                <Card Margin="Margin.Is4.OnY">
+                <Blazorise.Card Margin="Margin.Is4.OnY">
                     <CardBody>
                         <CardTitle Size="5">Statistics</CardTitle>
                         <CardText>
-                            <Button Clicked="@(async () => await HandleRedraw())">Redraw</Button>
+                            <Blazorise.Button Clicked="@(async () => await HandleRedraw())">Redraw</Blazorise.Button>
                             <LineChart @ref="lineChart" TItem="double" />
                         </CardText>
                     </CardBody>
-                </Card>        
+                </Blazorise.Card>        
         </div>
     </div>
 

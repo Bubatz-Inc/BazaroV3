@@ -10,23 +10,35 @@
 @inject EntryService es
 @inject IHttpContextAccessor http
 @inject UserManager<User> um
+@using Blazorise
+@using Blazorise.Sidebar
+@using Blazorise.Markdown
+@using Blazorise.TreeView
+@using Blazorise.Charts
 
 <div class="container" style="width: 220px; background-color: #343a40">
     <div class="row">
         <div class="col-sm">
-            <button class="btn btn-primary" @onclick="CreateFolder" style="margin-left: 15px; margin-right: -15px;">+ Note</button>
+            @if(_folders.Count == 0)
+            {
+                <button class="btn btn-primary" disabled=true @onclick="CreateEntry" style="margin-left: 15px; margin-right: -15px;">+ Note</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" @onclick="CreateEntry" style="margin-left: 15px; margin-right: -15px;">+ Note</button>
+            }
         </div>
         <div class="col-sm">
-            <button class="btn btn-primary" @onclick="CreateEntry" style="margin-right: 15px; margin-left: -15px">+ Folder</button>
+            <button class="btn btn-primary" @onclick="CreateFolder" style="margin-right: 15px; margin-left: -15px">+ Folder</button>
         </div>
     </div>
     <div class="row">
-        <Sidebar Data="@sidebarInfo" style="color: red;"/>
+        <Sidebar Data="@sidebarInfo"/>
     </div>
 </div>
 
 @code{
-    private List<FolderModel> _folders = new List<FolderModel>();
+    private List<FolderModel> _folders = new();
     private Entry[,] _entries;
      
     protected override async Task OnInitializedAsync()
@@ -102,6 +114,8 @@
             Title = "New Note",
             Description = "",
         });
+
+        await LoadFolders();
     }
 
     private async Task CreateFolder()
@@ -117,5 +131,7 @@
             Description = "",
             UserId = userId
         });
+
+        await LoadFolders();
     }
 }
