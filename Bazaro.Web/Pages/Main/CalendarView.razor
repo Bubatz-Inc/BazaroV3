@@ -1,0 +1,228 @@
+﻿@page "/calendar"
+@inject IHttpContextAccessor http
+@inject CalendarService cs
+@inject UserManager<User> um
+
+<h3>Calendar</h3>
+
+<AntDesign.Calendar Value=@PanelDate OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+
+@*Edit / Add Entry Modal*@
+<Modal Title="@("Title")"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <p>asdf</p>
+</Modal>
+
+@code
+{
+    class ListData
+    {
+        public EntryModel Entry;
+        public DateTime StartDate;
+    }
+
+    private List<ListData> GetListDataTest(DateTime value)
+    {
+        List<ListData> listData = null;
+
+        switch (value.Day)
+        {
+            case 8:
+                listData = new List<ListData>
+                {
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2, Title="Super Event" }},
+                };
+                break;
+            case 10:
+                listData = new List<ListData> {
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6, Title="Super Event" }},
+                };
+                break;
+            case 15:
+                listData = new List<ListData> {
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14, Title="Super Event" }},
+                };
+                break;
+        }
+
+        return listData ?? new List<ListData>();
+    }
+
+    private List<ListData> GetListData(DateTime value)
+    {
+        List<ListData> ret = new();
+        foreach(var entry in calendarEntries)
+        {
+            ret.Add(new ListData
+            {
+                StartDate = entry.StartDate,
+                Entry = entry.Entry
+            });
+        }
+
+        return ret;
+    }
+
+    private string currentUserId = null;
+
+    private RenderFragment DateCellRender(DateTime value)
+    {
+        List<ListData> listData = null;
+        if (currentUserId is null)
+        {
+            listData = GetListDataTest(value);
+        }
+        else
+        {
+            listData = GetListData(value);
+        }
+        return
+        @<Template>
+        <ul class="events">
+            @foreach (var data in listData)
+                {
+                    <li key="@data.Entry">
+                        <div @onclick="@(() => {OnEventClick(data);})"> @data.StartDate.Hour : @data.StartDate.Minute - @data.Entry.Title </div>
+                    </li>
+                }
+            </ul>
+        </Template>
+    ;
+    }
+
+    private List<CalenderEntryModel> calendarEntries { get; set; }
+
+    private DateTime PanelDate = DateTime.Now;
+    private async Task LoadEntries()
+    {
+        var firstDay = new DateTime(PanelDate.Year, PanelDate.Month, 1);
+        var userId = await getCurrentUserId();
+        if (userId is null) return;
+        calendarEntries = await cs.GetCalendarEntries(new Services.Queries.CalendarEntries.GetCalenderEntriesByUserId.Query
+            {
+                UserId = userId,
+                StartDate = firstDay,
+                EndDate = firstDay.AddMonths(1).AddDays(-1)
+            });
+
+        StateHasChanged();
+    }
+
+    private void OnPanelChange(DateTime value, string mode)
+    {
+        PanelDate = value;
+        LoadEntries();
+    }
+
+    private async Task<string> getCurrentUserId()
+    {
+        var username = http.HttpContext.User?.Identity.Name;
+        if (username is null) return null;
+        return (await um.FindByNameAsync(username)).Id;
+    }
+
+    private ListData currentModalData = null;
+
+    private void OnEventClick(ListData data)
+    {
+        ShowModal();
+    }
+
+    private int? GetMonthData(DateTime value)
+    {
+        if (value.Month == 8)
+        {
+            return 1394;
+        }
+
+        return null;
+    }
+
+    private RenderFragment MonthCellRender(DateTime value)
+    {
+        int? num = GetMonthData(value);
+
+        if (num == null)
+        {
+            return null;
+        }
+
+        return
+    @<Template>
+        <div className="notes-month">
+            <section>@num</section>
+            <span>Backlog number</span>
+        </div>
+    </Template>
+    ;
+    }
+
+    bool _visible = false;
+    bool _confirmLoading = false;
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUserId = await getCurrentUserId();
+        await LoadEntries();
+        await base.OnInitializedAsync();
+    }
+}
+
+<Style>
+    .events {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+        .events .ant-badge-status {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            text-overflow: ellipsis;
+            font-size: 12px;
+        }
+
+    .notes-month {
+        text-align: center;
+        font-size: 28px;
+    }
+
+        .notes-month section {
+            font-size: 28px;
+        }
+</Style>
