@@ -33,28 +33,28 @@
             case 8:
                 listData = new List<ListData>
                 {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1 }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2 }},
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2, Title="Super Event" }},
                 };
                 break;
             case 10:
                 listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3 }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4 }},
-                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5 }},
-                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6 }},
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6, Title="Super Event" }},
                 };
                 break;
             case 15:
                 listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7 }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8 }},
-                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9 }},
-                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10 }},
-                    new ListData { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11 }},
-                    new ListData { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12 }},
-                    new ListData { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13 }},
-                    new ListData { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14 }},
+                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13, Title="Super Event" }},
+                    new ListData { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14, Title="Super Event" }},
                 };
                 break;
         }
@@ -75,12 +75,14 @@
         }
 
         return ret;
-    } 
+    }
+
+    private string currentUserId = null;
 
     private RenderFragment DateCellRender(DateTime value)
     {
         List<ListData> listData = null;
-        if (getCurrentUserId() is null)
+        if (currentUserId is null)
         {
             listData = GetListDataTest(value);
         }
@@ -133,7 +135,7 @@
         return (await um.FindByNameAsync(username)).Id;
     }
 
-    public ListData currentModalData = null;
+    private ListData currentModalData = null;
 
     private void OnEventClick(ListData data)
     {
@@ -194,6 +196,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        currentUserId = await getCurrentUserId();
         await LoadEntries();
         await base.OnInitializedAsync();
     }
