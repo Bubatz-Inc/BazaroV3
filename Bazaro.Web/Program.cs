@@ -37,8 +37,8 @@ else
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
-    //options.UseSqlServer(connectionString)
-    options.UseInMemoryDatabase("Jonas-der-Spacken"));
+    options.UseNpgsql(connectionString));
+    //options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -55,6 +55,7 @@ builder.Services.AddTransient<EntryService>();
 builder.Services.AddTransient<FolderService>();
 builder.Services.AddTransient<ItemService>();
 builder.Services.AddTransient<EntryRelationService>();
+builder.Services.AddTransient<StatisticService>();
 
 builder.Services
     .AddBlazorise(options =>

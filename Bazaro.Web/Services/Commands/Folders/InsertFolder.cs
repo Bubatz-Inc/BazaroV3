@@ -31,6 +31,8 @@ namespace Bazaro.Web.Services.Commands.Folders
 
             context.Add(data);
 
+            await context.SaveChangesAsync();
+
             context.Add(new UserFolderReference
             {
                 FolderId = data.Id,
