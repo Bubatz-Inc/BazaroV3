@@ -25,7 +25,6 @@ namespace Bazaro.Web
                     modelBuilder.Entity(type);
 
             // Dual Keys
-            modelBuilder.Entity<FolderEntryReference>().HasKey(c => new { c.EntryId, c.FolderId });
             modelBuilder.Entity<UserFolderReference>().HasKey(c => new { c.UserId, c.FolderId });
             modelBuilder.Entity<EntryReference>().HasKey(c => new { c.EntryId, c.ReferenceEntryId });
 
