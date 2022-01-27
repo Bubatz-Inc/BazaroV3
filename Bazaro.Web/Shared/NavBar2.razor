@@ -40,7 +40,7 @@
 @code{
     private List<FolderModel> _folders = new();
     private Entry[,] _entries;
-     
+
     protected override async Task OnInitializedAsync()
     {
         await LoadFolders();
@@ -51,7 +51,7 @@
         Brand = new SidebarBrandInfo
         {
             Text = "Bazaro"
-            
+
         },
         Items = new List<SidebarItemInfo>{}
     };
@@ -90,7 +90,10 @@
             }
 
             // Get all entries from the current folder
-            var entries = await es.GetViewEntriesByFolderId(folder.Id);
+            var entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+            {
+                FolderId = folder.Id
+            });
 
             foreach(var entry in entries)
             {
