@@ -11,11 +11,11 @@ namespace Bazaro.Web.Services.Queries.EntryReferences
             public int EntryId { get; set; }
         }
 
-        public static Task<List<EntryReferenceViewModel>> Handle(BazaroContext context, Query request)
+        public static Task<List<EntryReferenceModel>> Handle(BazaroContext context, Query request)
         {
             return context.Set<EntryReference>()
                 .Where(x => x.EntryId == request.EntryId)
-                .Select(x => new EntryReferenceViewModel
+                .Select(x => new EntryReferenceModel
                 {
                     EntityId = x.EntryId,
                     ReferenceEntityId = x.ReferenceEntryId,

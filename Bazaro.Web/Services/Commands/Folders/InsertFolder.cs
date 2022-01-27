@@ -12,7 +12,7 @@ namespace Bazaro.Web.Services.Commands.Folders
             public string Title { get; set; }
             public string Description { get; set; }
 
-            public int PreviousFolder { get; set; }
+            public int? PreviousFolder { get; set; }
         }
 
         public static async Task Handle(BazaroContext context, Command request)
