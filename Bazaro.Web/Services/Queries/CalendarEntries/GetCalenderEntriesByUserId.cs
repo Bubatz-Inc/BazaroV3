@@ -29,6 +29,7 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
                     && x.ce.StartDate >= request.StartDate && x.ce.StartDate <= request.EndDate)
                 .Select(x => new CalendarEntryModel
                 {
+                    Id = x.ce.Id,
                     StartDate = x.ce.StartDate,
                     EndDate = x.ce.EndDate,
                     Entry = new EntryModel

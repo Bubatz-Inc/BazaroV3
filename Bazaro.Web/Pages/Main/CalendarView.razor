@@ -17,35 +17,34 @@
        OnOk="@HandleOk"
        OnCancel="@HandleCancel"
        ConfirmLoading="@_confirmLoading">
-    <div>
-        @SelectedEntry.StartDate.Date.ToLongDateString()
+    @if(SelectedEntry is not null) {
         <div>
-            <BlazoredTypeahead SearchMethod="SearchEntryModels"
-                    TValue="EntryModel"
-                    TItem="EntryModel"
-                    @bind-Value="selectedEntryModel"
-                    placeholder="Select Note...">
-                <SelectedTemplate Context="entry">
-                    @{
-                        <text>@entry?.Title (Id: @entry?.Id)</text>
-                    }
-                </SelectedTemplate> 
-                <ResultTemplate Context="entry">
-                    @entry.Title (Id: @entry.Id)
-                </ResultTemplate>
-            </BlazoredTypeahead>
+            @SelectedEntry.StartDate.Date.ToLongDateString()
             <div>
-                <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                <BlazoredTypeahead SearchMethod="SearchEntryModels"
+                        TValue="EntryModel"
+                        TItem="EntryModel"
+                        @bind-Value="selectedEntryModel"
+                        placeholder="Select Note...">
+                    <SelectedTemplate Context="entry">
+                        @{
+                            <text>@entry?.Title (Id: @entry?.Id)</text>
+                        }
+                    </SelectedTemplate> 
+                    <ResultTemplate Context="entry">
+                        @entry.Title (Id: @entry.Id)
+                    </ResultTemplate>
+                </BlazoredTypeahead>
+                <div>
+                    <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                </div>
             </div>
+            @if (EditMode)
+            {
+                <AntDesign.Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</AntDesign.Button>
+            }
         </div>
-        @if (selectedEntryModel is not null)
-        {
-            <p>@selectedEntryModel.Title (Id: @selectedEntryModel.Id)</p>
-            <p>@SelectedEntry?.Entry?.Title</p>
-            <p>@selectedEntryStartDate?.ToShortDateString()</p>
-            <p>@selectedEntryEndDate?.ToShortDateString()</p>
-        }
-    </div>
+    }
 </Modal>
 
 @code
@@ -260,18 +259,49 @@
         _visible = true;
     }
 
+    private async Task DeleteEntry()
+    {
+        if (SelectedEntry is null)
+        {
+            return;
+        }
+
+        _confirmLoading = true;
+
+        await cs.DeleteCalendarEntry(new DeleteCalendarEntryById.Command
+            {
+                CalendarEntryId = SelectedEntry.Id
+            });
+
+        await LoadEntries();
+        _confirmLoading = false;
+        SelectedEntry = null;
+        _visible = false;
+    }
+
     private async Task SaveEntry()
     {
         if (selectedEntryStartDate is null) {
             return;
         }
-
-        await cs.AddCalendarEntry(new AddCalendarEntry.Command
+        if (EditMode)
+        {
+            await cs.UpdateCalendarEntry(new UpdateCalendarEntry.Command
+                {
+                    CalendarEntryId = SelectedEntry.Id,
+                    EntryId = selectedEntryModel.Id,
+                    StartDate = (DateTime)selectedEntryStartDate,
+                    EndDate = selectedEntryEndDate
+                });
+        } else
+        {
+            await cs.AddCalendarEntry(new AddCalendarEntry.Command
             {
                 EntryId = selectedEntryModel.Id,
                 StartDate = (DateTime)selectedEntryStartDate,
                 EndDate = selectedEntryEndDate
-            });
+            });   
+        }
 
         await LoadEntries();
     }
