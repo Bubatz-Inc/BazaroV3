@@ -9,7 +9,7 @@
 
 <h3>Calendar</h3>
 <AntDesign.Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</AntDesign.Button>
-<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
 
 @*Edit / Add Entry Modal*@
 <Modal Title="@("Title")"
@@ -35,7 +35,7 @@
                 </ResultTemplate>
             </BlazoredTypeahead>
             <div>
-                <RangePicker TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
             </div>
         </div>
         @if (selectedEntryModel is not null)
@@ -189,7 +189,6 @@
     private void OnPanelChange(DateTime value, string mode)
     {
         PanelDate = value;
-        LoadEntries().ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     private async Task<string> getCurrentUserId()
@@ -209,6 +208,7 @@
 
     public void AddEntry()
     {
+        selectedEntryStartDate = SelectedDate;
         SelectedEntry = new CalendarEntryModel
         {
             StartDate = SelectedDate
@@ -253,10 +253,28 @@
         _visible = true;
     }
 
+    private async Task SaveEntry()
+    {
+        if (selectedEntryStartDate is null) {
+            return;
+        }
 
-    private void HandleOk(MouseEventArgs e)
+        await cs.AddCalendarEntry(new AddCalendarEntry.Command
+            {
+                EntryId = selectedEntryModel.Id,
+                StartDate = (DateTime)selectedEntryStartDate,
+                EndDate = selectedEntryEndDate
+            });
+
+        await LoadEntries();
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
+
+        await SaveEntry();
+
         StateHasChanged();
         _visible = false;
         _confirmLoading = false;
