@@ -95,6 +95,7 @@
             @foreach(var folder in folders)
             {
                 <MenuItemGroup Key="@folder.Id.ToString()" Title="@folder.Title">
+                        <MenuItem Key="null"></MenuItem>
                 @if(folder.Entries is not null)
                 {
                     @foreach(var entry in folder.Entries)
@@ -129,6 +130,8 @@
             Title = "New Note",
             Description = ""
         });
+
+        await LoadFolders();
     }
 
     // Query to create new Folder
@@ -146,5 +149,7 @@
             Description = "",
             UserId = userId
         });
+
+        await LoadFolders();
     }
 }
