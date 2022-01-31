@@ -71,7 +71,9 @@
         if(_rootFolder.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
+
             _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
+
         }
     }
 
@@ -85,7 +87,7 @@
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
-    private async Task<List<FolderModel>> LoadFoldersAndSubFolders(List<FolderModel> folders)
+    private List<FolderModel> LoadFoldersAndSubFolders(List<FolderModel> folders)
     {
         List<FolderModel> returnFolders = new();
 
@@ -93,7 +95,7 @@
         {
             if(folder.SubFolders is not null)
             {
-                folder.SubFolders = await LoadFoldersAndSubFolders(folder.SubFolders);
+                folder.SubFolders = LoadFoldersAndSubFolders(folder.SubFolders);
             }
             returnFolders.Add(folder);
         }
