@@ -18,6 +18,7 @@ namespace Bazaro.Web.Services
         public Task Insert(InsertFolder.Command command) => InsertFolder.Handle(_context, command);
 
         public Task Update(UpdateFolder.Command command) => UpdateFolder.Handle(_context, command);
+        public Task Delete(DeleteFolder.Command command) => DeleteFolder.Handle(_context, command);
 
     }
 }
