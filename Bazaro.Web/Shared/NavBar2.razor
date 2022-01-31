@@ -74,7 +74,7 @@
         // Load root folder
         FolderModel rootFolder = await fs.GetViewFolderStructureByuserId(userId);
 
-        if(rootFolder.SubFolders is not null)
+        if(rootFolder?.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
             _folders = await LoadFoldersAndSubFolders(rootFolder.SubFolders);
