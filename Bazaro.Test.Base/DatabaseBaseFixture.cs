@@ -31,6 +31,7 @@ namespace Bazaro.Test.Base
             container.Register<BazaroContext, BazaroContext>(Lifestyle.Scoped);
 
             container.Register<EntryService>(Lifestyle.Transient);
+            container.Register<CalendarService>(Lifestyle.Transient);
             container.Register<FolderService>(Lifestyle.Transient);
             container.Register<ItemService>(Lifestyle.Transient);
             container.Register<EntryRelationService>(Lifestyle.Transient);

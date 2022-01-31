@@ -13,26 +13,32 @@ namespace Bazaro.Core.Test.Commands
     {
         private readonly ContentTypeSevice _service;
 
-        public ContentTypeTest(DatabaseBaseFixture fixture, ContentTypeSevice service) : base(fixture) 
+        public ContentTypeTest(DatabaseBaseFixture fixture) : base(fixture)
         {
-            _service = service;
+            _service = _scope.GetInstance<ContentTypeSevice>();
 
             CreateDatabaseOnTimeData();
         }
 
-        protected override void DatabaseOneTimeData()
+        protected override async void DatabaseOneTimeData()
         {
             _context.Add(new ContentType
             {
                 Title = "Test",
                 Created = DateTime.Now,
             });
+
+            await _context.SaveChangesAsync();
         }
 
         [Fact]
         public async Task InsertContentTypePassingTest()
         {
-            _context.Remove(_context.Set<ContentType>());
+            var oldData = await _context.Set<ContentType>().ToListAsync();
+
+            _context.RemoveRange(_context.Set<ContentType>());
+            await _context.SaveChangesAsync();
+
             Assert.Empty(_context.Set<ContentType>());
 
             await _service.Insert(new Web.Services.Commands.ContentTypes.InsertContentType.Command
@@ -52,6 +58,9 @@ namespace Bazaro.Core.Test.Commands
 #pragma warning disable xUnit2002 // Do not use null check on value type
             Assert.NotNull(item.Created);
 #pragma warning restore xUnit2002 // Do not use null check on value type
+
+            _context.AddRange(oldData);
+            await _context.SaveChangesAsync();
         }
 
         [Fact]
@@ -84,16 +93,20 @@ namespace Bazaro.Core.Test.Commands
         [Fact]
         public async Task DeleteContentTypePassingTest()
         {
-            var dataId = _context.Set<ContentType>().First().Id;
+            var data = _context.Set<ContentType>().First();
+            var oldData = data;
 
             Assert.NotEmpty(_context.Set<ContentType>());
 
             await _service.Delete(new Web.Services.Commands.ContentTypes.DeleteContentType.Command
             {
-                Id = dataId
+                Id = data.Id
             });
 
             Assert.Empty(_context.Set<ContentType>());
+
+            _context.AddRange(oldData);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Bazaro.Web.Models;
 using Bazaro.Web.Models.References;
-using Microsoft.EntityFrameworkCore;
 
 namespace Bazaro.Web.Services.Commands.Folders
 {
