@@ -55,7 +55,7 @@ namespace Bazaro.Core.Test.Commands
 
             Assert.Empty(_context.Set<CalendarEntry>());
 
-            await _service.AddCalendarEntry(new Web.Services.Commands.CalendarEntries.InsertCalendarEntry.Command
+            await _service.Insert(new Web.Services.Commands.CalendarEntries.InsertCalendarEntry.Command
             {
                 EntryId = oldData.First().EntryId,
                 StartDate = DateTime.Now,
@@ -85,7 +85,7 @@ namespace Bazaro.Core.Test.Commands
             Assert.NotEmpty(_context.Set<CalendarEntry>());
             Assert.Single(_context.Set<CalendarEntry>());
 
-            await _service.UpdateCalendarEntry(new Web.Services.Commands.CalendarEntries.UpdateCalendarEntry.Command
+            await _service.Update(new Web.Services.Commands.CalendarEntries.UpdateCalendarEntry.Command
             {
                 CalendarEntryId = data.Id,
                 EntryId = data.EntryId,
@@ -116,7 +116,7 @@ namespace Bazaro.Core.Test.Commands
 
             Assert.NotEmpty(_context.Set<CalendarEntry>());
 
-            await _service.DeleteCalendarEntry(new Web.Services.Commands.CalendarEntries.DeleteCalendarEntryById.Command
+            await _service.Delete(new Web.Services.Commands.CalendarEntries.DeleteCalendarEntryById.Command
             {
                 CalendarEntryId = data.Id
             });

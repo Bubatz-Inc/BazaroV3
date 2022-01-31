@@ -15,10 +15,10 @@ namespace Bazaro.Web.Services
 
         public Task<List<CalendarEntryModel>> GetCalendarEntries(GetCalenderEntriesByUserId.Query request) => GetCalenderEntriesByUserId.Handle(_context, request);
 
-        public Task AddCalendarEntry(InsertCalendarEntry.Command request) => Commands.CalendarEntries.InsertCalendarEntry.Handle(_context, request);
+        public Task Insert(InsertCalendarEntry.Command request) => Commands.CalendarEntries.InsertCalendarEntry.Handle(_context, request);
 
-        public async Task DeleteCalendarEntry(DeleteCalendarEntryById.Command request) => await DeleteCalendarEntryById.Handle(_context, request);
+        public async Task Delete(DeleteCalendarEntryById.Command request) => await DeleteCalendarEntryById.Handle(_context, request);
 
-        public async Task UpdateCalendarEntry(UpdateCalendarEntry.Command request) => await Commands.CalendarEntries.UpdateCalendarEntry.Handle(_context, request);
+        public async Task Update(UpdateCalendarEntry.Command request) => await Commands.CalendarEntries.UpdateCalendarEntry.Handle(_context, request);
     }
 }
