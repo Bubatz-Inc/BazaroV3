@@ -6,50 +6,31 @@
 @using Bazaro.Web.Services.ViewModels
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@inject FolderService fs
-@inject EntryService es
-@inject IHttpContextAccessor http
-@inject UserManager<User> um
+@inject FolderService folderService
+@inject EntryService entryService
+@inject IHttpContextAccessor httpContext
+@inject UserManager<User> userManager
 
 <Menu Style="width: 256px; height: 100%;"
       Theme=theme
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
-      <MenuItemGroup>
-        <MenuItem>
-            <Button @onclick="CreateEntry">Create Entry</Button>
-        </MenuItem>
-        <MenuItem>
-            <Button @onclick="CreateFolder">Create Folder</Button>
-        </MenuItem>
-      </MenuItemGroup>
+          <MenuItemGroup>
+            <MenuItem>
+                <Button @onclick="CreateEntry">Create Entry</Button>
+            </MenuItem>
+            <MenuItem>
+                <Button @onclick="CreateFolder">Create Folder</Button>
+            </MenuItem>
+          </MenuItemGroup>
       @RenderFolderTree(_folders)
 </Menu>
 
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
-
-    RenderFragment sub1Title =
-    @<span>
-        <Icon Type="mail" Theme="outline"></Icon>
-        <span>Navigation One</span>
-    </span>;
-
-    RenderFragment sub2Title =
-    @<span>
-        <Icon Type="appstore" Theme="outline"></Icon>
-        <span>Navigation Two</span>
-    </span>;
-
-    RenderFragment sub4Title =
-    @<span>
-        <Icon Type="setting" Theme="outline"></Icon>
-        <span>Navigation Three</span>
-    </span>
-    ;
-
+    
 
     private FolderModel _rootFolder = new();
     private List<FolderModel> _folders = new();
@@ -58,27 +39,32 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadFolders();
+        await LoadOrphanEntries();
     }
 
     private async Task LoadFolders()
     {
         // Get userID to retrieve folders and entries from the DB
-        var username = http.HttpContext.User.Identity.Name;
-        var userId = (await um.FindByNameAsync(username)).Id;
-
-        _toplvlEntries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
-        {
-            FolderId = null
-        });
+        var username = httpContext.HttpContext.User.Identity.Name;
+        var userId = (await userManager.FindByNameAsync(username)).Id;
 
         // Load root folder
-        FolderModel rootFolder = await fs.GetViewFolderStructureByuserId(userId);
+        FolderModel rootFolder = await folderService.GetViewFolderStructureByuserId(userId);
 
         if(rootFolder?.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
             _folders = await LoadFoldersAndSubFolders(rootFolder.SubFolders);
         }
+    }
+
+    // Load entries that do not have a folder
+    private async Task LoadOrphanEntries()
+    {
+        _toplvlEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+        {
+            FolderId = null
+        });
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
@@ -125,7 +111,7 @@
     // Loads a given folder's entries
     private async Task LoadFolderEntries(FolderModel folder)
     {
-        folder.Entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
+        folder.Entries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
             FolderId = folder.Id
         });
     }
@@ -134,7 +120,7 @@
     private async Task CreateEntry()
     {
         // Send query
-        await es.Insert(new InsertEntry.Command
+        await entryService.Insert(new InsertEntry.Command
         {
             Title = "New Note",
             Description = ""
@@ -144,12 +130,12 @@
     // Query to create new Folder
     private async Task CreateFolder()
     {
-        string userId = (await um
-            .FindByNameAsync(http.HttpContext.User.Identity.Name))
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
             .Id;
 
         // Send query
-        await fs.Insert(new InsertFolder.Command
+        await folderService.Insert(new InsertFolder.Command
         {
             PreviousFolder = _rootFolder.Id,
             Title = "New Folder",
