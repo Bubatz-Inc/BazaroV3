@@ -21,13 +21,18 @@ namespace Bazaro.Web.Services.Queries.Items
             if (data == null)
                 return null;
 
-            return CreateItemModel(data);
+            return await CreateItemModel(context, data);
         }
 
-        private static ItemModel CreateItemModel(Item item)
+        private static async Task<ItemModel> CreateItemModel(BazaroContext context, Item item)
         {
             if (item == null)
                 return null;
+
+            var nextItem = await context.Set<Item>()
+                .Include(x => x.ContentType)
+                .Include(x => x.NextItem)
+                .FirstOrDefaultAsync(x => x.Id == item.NextItemId);
 
             return new ItemModel
             {
@@ -38,7 +43,7 @@ namespace Bazaro.Web.Services.Queries.Items
                     Title = item.ContentType.Title
                 },
                 Content = item.Content,
-                NextItem = CreateItemModel(item.NextItem)
+                NextItem = (nextItem == null ? null : await CreateItemModel(context, item.NextItem)) 
             };
         }
     }
