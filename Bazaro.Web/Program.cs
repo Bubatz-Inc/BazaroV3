@@ -56,6 +56,7 @@ builder.Services.AddScoped<CalendarService>();
 builder.Services.AddScoped<ContentTypeSevice>();
 
 builder.Services.AddAntDesign();
+builder.Services.AddBlazorContextMenu();
 
 builder.Services
     .AddBlazorise(options =>

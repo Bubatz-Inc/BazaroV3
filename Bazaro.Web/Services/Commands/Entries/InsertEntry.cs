@@ -10,7 +10,7 @@ namespace Bazaro.Web.Services.Commands.Entries
             public string Title { get; set; }
             public string Description { get; set; }
 
-            public int? FolderId { get; set; }
+            public int FolderId { get; set; }
         }
 
         public static async Task Handle(BazaroContext context, Command request)
