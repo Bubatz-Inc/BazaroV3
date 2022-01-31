@@ -11,13 +11,11 @@
 @inject IHttpContextAccessor httpContext
 @inject UserManager<User> userManager
 
-
 <ContextMenu Id="EntryRightClick" class="my-menu"> 
     <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item>Delete</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Move file to...</BlazorContextMenu.Item>
 </ContextMenu>
-
 
 <Modal Title="Rename Note"
        Visible="@_visible"
@@ -29,7 +27,6 @@
         <Input @bind-Value="@_entryName"/>
     </div>
 </Modal>
-
 
 @code {
     [Parameter] public EventCallback OnValidSubmit { get; set; }
