@@ -30,7 +30,7 @@
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
-    
+
 
     private FolderModel _rootFolder = new();
     private List<FolderModel> _folders = new();
@@ -49,7 +49,11 @@
         var userId = (await userManager.FindByNameAsync(username)).Id;
 
         // Load root folder
-        _rootFolder = await folderService.GetViewFolderStructureByuserId(userId);
+        _rootFolder = await folderService.GetViewFolderStructureByuserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
+        {
+            UserId = userId,
+            FolderId = null,
+        });
 
         if(_rootFolder.SubFolders is not null)
         {

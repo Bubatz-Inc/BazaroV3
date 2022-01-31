@@ -18,7 +18,10 @@ namespace Bazaro.Web.Services.Queries.Folders
             var rootFolder = await context.Set<UserFolderReference>()
                 .Include(x => x.Folder)
                 .ThenInclude(x => x.SubFolder)
-                .Where(x => x.UserId == request.UserId && x.FolderId == request.FolderId)
+                .Where(x => x.UserId == request.UserId 
+                    && (request.FolderId == null 
+                        ? x.Folder.PreviousFolder == null
+                        : x.FolderId == request.FolderId))
                 .FirstOrDefaultAsync();
 
             if (rootFolder == null)

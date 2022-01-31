@@ -13,10 +13,7 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<FolderModel> GetViewFolderStructureByuserId(string userId) => GetViewSubfoldersStructureByUserId.Handle(_context, new GetViewSubfoldersStructureByUserId.Query
-        {
-            UserId = userId
-        });
+        public Task<FolderModel> GetViewFolderStructureByuserId(GetViewSubfoldersStructureByUserId.Query request) => GetViewSubfoldersStructureByUserId.Handle(_context, request);
 
         public Task Insert(InsertFolder.Command command) => InsertFolder.Handle(_context, command);
 
