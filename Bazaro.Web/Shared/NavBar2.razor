@@ -31,7 +31,7 @@
       }
 </Menu>
 
-<FolderRightclickMenuComponent OnValidSubmit="LoadFolders"/>
+<FolderRightclickMenuComponent OnValidSubmit="LoadFolders" _rootFolder=_rootFolder/>
 <EntryRightclickMenuComponent OnValidSubmit="RefreshData" />
 
 @code
@@ -40,7 +40,7 @@
 
     private FolderModel _rootFolder = null;
     private List<FolderModel> _folders = new();
-    private ListGetViewFolderStructureByUserIdnew();
+    private List<EntryModel> _toplvlEntries = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -64,7 +64,8 @@
         var userId = (await userManager.FindByNameAsync(username)).Id;
 
         // Load root folder
-        _rootFolder = await folderService.GetViewFolderStructureByuserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
+
+        _rootFolder = await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
         {
             UserId = userId,
             FolderId = null,

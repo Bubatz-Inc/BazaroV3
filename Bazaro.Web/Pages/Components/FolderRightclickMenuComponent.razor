@@ -14,7 +14,7 @@
 <ContextMenu Id="FolderRightClick"> 
     <BlazorContextMenu.Item OnClick="@RenameFolderEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Delete</BlazorContextMenu.Item>
-    <BlazorContextMenu.Item >Move file to...</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@ToggleMoveModal" >Move file to...</BlazorContextMenu.Item>
 </ContextMenu>
 
 <Modal Title="Rename Folder"
@@ -27,15 +27,29 @@
         <Input @bind-Value="@_folderName"/>
     </div>
 </Modal>
+@if(_rootFolder is not null)
+{
+    @LoadTreeSelectModal()
+}
 
 @code {
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public FolderModel _rootFolder { get; set; }
+
+    private bool _folderMoveModal = false;
 
     // Modal Parameters
     bool _visible = false;
     bool _confirmLoading = false;
     string _folderName = "";
     FolderModel _folder = new();
+
+    private RenderFragment LoadTreeSelectModal()
+    {
+            return
+        @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal/>
+        ;
+    }
 
     private async Task DeleteFolderEvent(ItemClickEventArgs e)
     {
@@ -62,12 +76,12 @@
 
         // Get folderID from rightclick
         int folderId = Convert.ToInt32(e.ContextMenuTrigger.Id);
-        
+
         // GET FOLDER BY ID
-        //_folder = await folderService.(new Services.Queries.Entries.GetEntryById.Query
-        //{
-        //    Id = folderId
-        //});
+        _folder = await folderService.GetViewFolderById(new Services.Queries.Folders.GetFolderById.Query
+        {
+            Id = folderId
+        });
 
         _folderName = _folder.Title;
         ShowModal();
@@ -100,6 +114,11 @@
         Console.WriteLine("Clicked cancel button");
         _visible = false;
 
-         await OnValidSubmit.InvokeAsync();
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private void ToggleMoveModal()
+    {
+        _folderMoveModal = !_folderMoveModal;
     }
 }

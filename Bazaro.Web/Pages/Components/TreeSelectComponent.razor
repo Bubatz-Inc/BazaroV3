@@ -17,15 +17,65 @@
     [Parameter] public EventCallback<int> OnValidSubmit { get; set; }
     private string value;
 
+    // Modal Parameters
+    [Parameter] public bool _visible { get; set; } = false;
+    bool _confirmLoading = false;
+    int _selectedFolderId;
 
-    Data[] treeData = new Data[]
+    Data[] treeData = new Data[] {};
+
+    protected override async Task OnInitializedAsync()
     {
-    };
+        LoadTreeData(_rootFolder.SubFolders);
+        ShowModal();
+    }
+
+    private void LoadTreeData(List<FolderModel> folders)
+    {
+        foreach(var folder in folders)
+        {
+            if(folder.SubFolders is not null)
+            {
+                LoadTreeData(folder.SubFolders);
+            }
+
+            treeData.Append(new Data
+                {
+                    Title = folder.Title,
+                    Value = folder.Id.ToString()
+                });
+        }
+    }
 
     public class Data
     {
         public string Value { get; set; }
         public string Title { get; set; }
         public Data[] Children { get; set; }
+    }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
+
+        string localvalue = value;
+
+        await OnValidSubmit.InvokeAsync(_selectedFolderId);
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+
+         await OnValidSubmit.InvokeAsync();
     }
 }
