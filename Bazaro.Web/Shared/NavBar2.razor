@@ -71,9 +71,7 @@
         if(_rootFolder.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
-
-            _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
-
+            _folders = LoadFoldersAndSubFolders(_rootFolder.SubFolders);
         }
     }
 
