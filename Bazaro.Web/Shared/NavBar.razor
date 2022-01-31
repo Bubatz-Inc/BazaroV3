@@ -1,24 +1,22 @@
 ﻿@inject NavigationManager nav
 
-<Menu Style="width: 56px; height: 100%;"
+<Menu Style="width: 58px; height: 100%;"
       Theme=theme   
       Class="customsidebar"
-      DefaultSelectedKeys=@(new[] { "1" })
-      DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
-        <MenuItem Key="1" @onclick="@(() => NavToStr("/dashboard"))">
+        <MenuItem Key="1" @onclick="@(() => NavToStr("/index"))">
 			<IconTemplate>
-                <Icon Type="Apple" Theme="outline"></Icon>
+                <Icon Type="radar-chart" Theme="outline"/>
 				<IconFont Type="icon-c-sharp-l" />
 			</IconTemplate>
 		</MenuItem>
-        <MenuItem Key="1" @onclick="@(() => NavToStr("/dashboard"))">
+        <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))">
 			<IconTemplate>
                 <Icon Type="home" Theme="outline"></Icon>
 				<IconFont Type="icon-c-sharp-l" />
 			</IconTemplate>
 		</MenuItem>
-        <MenuItem Key="1" @onclick="@(() => NavToStr("/calendar"))">
+        <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))">
 			<IconTemplate>
                 <Icon Type="calendar" Theme="outline"></Icon>
 				<IconFont Type="icon-c-sharp-l" />
@@ -34,22 +32,4 @@
     {
         nav.NavigateTo(NavString);
     }
-
-    RenderFragment sub1Title =
-    @<span>
-        <Icon Type="mail" Theme="outline"></Icon>
-        <span>Navigation One</span>
-    </span>;
-
-    RenderFragment sub2Title =
-    @<span>
-        <Icon Type="appstore" Theme="outline"></Icon>
-        <span>Navigation Two</span>
-    </span>;
-
-    RenderFragment sub4Title =
-    @<span>
-        <Icon Type="setting" Theme="outline"></Icon>
-        <span>Navigation Three</span>
-    </span>;
 }

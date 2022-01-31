@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="AntDesign" Version="0.10.3.1" />
+    <PackageReference Include="Blazor.ContextMenu" Version="1.11.1" />
     <PackageReference Include="Blazorise.Bootstrap5" Version="0.9.5.2" />
     <PackageReference Include="Blazorise.Charts" Version="0.9.5.2" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.5.2" />
