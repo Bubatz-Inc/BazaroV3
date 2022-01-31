@@ -1,11 +1,13 @@
 ﻿@page "/calendar"
+@using Bazaro.Web.Services.Commands.CalendarEntries
+@using Bazaro.Web.Services.ViewModels
 @inject IHttpContextAccessor http
 @inject CalendarService cs
-@inject UserManager<User> um
+@inherits OwningComponentBase<UserManager<User>>
 
 <h3>Calendar</h3>
-
-<AntDesign.Calendar Value=@PanelDate OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+<AntDesign.Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</AntDesign.Button>
+<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
 
 @*Edit / Add Entry Modal*@
 <Modal Title="@("Title")"
@@ -13,75 +15,61 @@
        OnOk="@HandleOk"
        OnCancel="@HandleCancel"
        ConfirmLoading="@_confirmLoading">
-    <p>asdf</p>
+    <div>
+        @SelectedEntry.StartDate.Date.ToLongDateString()
+    </div>
 </Modal>
 
 @code
 {
-    class ListData
+    private List<CalendarEntryModel> GetListDataTest(DateTime value)
     {
-        public EntryModel Entry;
-        public DateTime StartDate;
-    }
-
-    private List<ListData> GetListDataTest(DateTime value)
-    {
-        List<ListData> listData = null;
+        List<CalendarEntryModel> listData = null;
 
         switch (value.Day)
         {
             case 8:
-                listData = new List<ListData>
+                listData = new List<CalendarEntryModel>
                 {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 1, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 2, Title="Super Event" }},
                 };
                 break;
             case 10:
-                listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6, Title="Super Event" }},
+                listData = new List<CalendarEntryModel> {
+                    new CalendarEntryModel { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 3, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 4, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 5, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 6, Title="Super Event" }},
                 };
                 break;
             case 15:
-                listData = new List<ListData> {
-                    new ListData { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13, Title="Super Event" }},
-                    new ListData { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14, Title="Super Event" }},
+                listData = new List<CalendarEntryModel> {
+                    new CalendarEntryModel { StartDate = value.AddHours(1), Entry = new EntryModel { Id = 7, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(2), Entry = new EntryModel { Id = 8, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(3), Entry = new EntryModel { Id = 9, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(4), Entry = new EntryModel { Id = 10, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(5), Entry = new EntryModel { Id = 11, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(6), Entry = new EntryModel { Id = 12, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(7), Entry = new EntryModel { Id = 13, Title="Super Event" }},
+                    new CalendarEntryModel { StartDate = value.AddHours(8), Entry = new EntryModel { Id = 14, Title="Super Event" }},
                 };
                 break;
         }
 
-        return listData ?? new List<ListData>();
+        return listData ?? new List<CalendarEntryModel>();
     }
 
-    private List<ListData> GetListData(DateTime value)
+    private List<CalendarEntryModel> GetListData(DateTime value)
     {
-        List<ListData> ret = new();
-        foreach(var entry in calendarEntries)
-        {
-            ret.Add(new ListData
-            {
-                StartDate = entry.StartDate,
-                Entry = entry.Entry
-            });
-        }
-
-        return ret;
+        return calendarEntries?.Where(x => x.StartDate.Date == value.Date).ToList();
     }
 
     private string currentUserId = null;
 
     private RenderFragment DateCellRender(DateTime value)
     {
-        List<ListData> listData = null;
+        List<CalendarEntryModel> listData = null;
         if (currentUserId is null)
         {
             listData = GetListDataTest(value);
@@ -104,8 +92,8 @@
     ;
     }
 
-    private List<CalenderEntryModel> calendarEntries { get; set; }
-
+    private List<CalendarEntryModel> calendarEntries { get; set; } = new();
+    private DateTime SelectedDate = DateTime.Now;
     private DateTime PanelDate = DateTime.Now;
     private async Task LoadEntries()
     {
@@ -125,20 +113,30 @@
     private void OnPanelChange(DateTime value, string mode)
     {
         PanelDate = value;
-        LoadEntries();
+        LoadEntries().ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     private async Task<string> getCurrentUserId()
     {
         var username = http.HttpContext.User?.Identity.Name;
         if (username is null) return null;
-        return (await um.FindByNameAsync(username)).Id;
+        return (await Service.FindByNameAsync(username)).Id;
     }
 
-    private ListData currentModalData = null;
+    private CalendarEntryModel SelectedEntry = null;
 
-    private void OnEventClick(ListData data)
+    private void OnEventClick(CalendarEntryModel data)
     {
+        SelectedEntry = data;
+        ShowModal();
+    }
+
+    public void AddEntry()
+    {
+        SelectedEntry = new CalendarEntryModel
+        {
+            StartDate = SelectedDate
+        };
         ShowModal();
     }
 
@@ -180,7 +178,7 @@
     }
 
 
-    private async Task HandleOk(MouseEventArgs e)
+    private void HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
         StateHasChanged();

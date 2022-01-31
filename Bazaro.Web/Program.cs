@@ -7,6 +7,7 @@ using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,9 @@ else
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors(), ServiceLifetime.Transient);
     //options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -45,7 +48,6 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-builder.Services.AddTransient<FolderService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddTransient<EntryService>();

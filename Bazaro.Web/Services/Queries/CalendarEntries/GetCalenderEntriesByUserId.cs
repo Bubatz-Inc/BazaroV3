@@ -14,9 +14,10 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
             public DateTime EndDate { get; set; }
         }
 
-        public static Task<List<CalenderEntryModel>> Handle(BazaroContext context, Query request)
+        public static async Task<List<CalendarEntryModel>> Handle(BazaroContext context, Query request)
         {
-            return context.Set<UserFolderReference>()
+            var test = context.Database.CurrentTransaction;
+            var res = await context.Set<UserFolderReference>()
                 .Join(context.Set<FolderEntryReference>(),
                     uf => uf.FolderId,
                     ue => ue.FolderId,
@@ -27,7 +28,7 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
                     (x, ce) => new { x.ue, x.uf, ce })
                 .Where(x => x.uf.UserId == request.UserId
                     && x.ce.StartDate >= request.StartDate && x.ce.EndDate <= request.EndDate)
-                .Select(x => new CalenderEntryModel
+                .Select(x => new CalendarEntryModel
                 {
                     StartDate = x.ce.StartDate,
                     EndDate = x.ce.EndDate,
@@ -39,6 +40,8 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
                         StartItemId = x.ce.Entry.StartItemId
                     }
                 }).ToListAsync();
+
+            return res;
         }
     }
 }

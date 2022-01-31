@@ -13,7 +13,7 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<CalenderEntryModel>> GetCalendarEntries(GetCalenderEntriesByUserId.Query request) => GetCalenderEntriesByUserId.Handle(_context, request);
+        public Task<List<CalendarEntryModel>> GetCalendarEntries(GetCalenderEntriesByUserId.Query request) => GetCalenderEntriesByUserId.Handle(_context, request);
 
         public Task AddCalendarEntry(AddCalendarEntry.Command request) => Commands.CalendarEntries.AddCalendarEntry.Handle(_context, request);
 
