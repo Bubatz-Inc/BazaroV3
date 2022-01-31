@@ -49,12 +49,12 @@
         var userId = (await userManager.FindByNameAsync(username)).Id;
 
         // Load root folder
-        FolderModel rootFolder = await folderService.GetViewFolderStructureByuserId(userId);
+        _rootFolder = await folderService.GetViewFolderStructureByuserId(userId);
 
-        if(rootFolder.SubFolders is not null)
+        if(_rootFolder.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
-            _folders = await LoadFoldersAndSubFolders(rootFolder.SubFolders);
+            _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
         }
     }
 
