@@ -50,6 +50,7 @@
 
 @code
 {
+    private bool EditMode { get; set; } = false;
     private DateTime? selectedEntryStartDate { get; set; }
     private DateTime? selectedEntryEndDate { get; set; }
 
@@ -92,7 +93,8 @@
         foundEntryModels = (await es.GetViewEntriesByTitle(new Services.Queries.Entries.GetEntriesByTitle.Query
             {
                 Title = searchText,
-                MaxCount = 25
+                MaxCount = 25,
+                UserId = await getCurrentUserId()
             })) ?? foundEntryModels;
 
         return foundEntryModels;
@@ -180,7 +182,7 @@
             {
                 UserId = userId,
                 StartDate = firstDay,
-                EndDate = firstDay.AddMonths(1).AddDays(-1)
+                EndDate = firstDay.AddMonths(1)
             });
 
         StateHasChanged();
@@ -202,12 +204,17 @@
 
     private void OnEventClick(CalendarEntryModel data)
     {
+        EditMode = true;
         SelectedEntry = data;
+        selectedEntryEndDate = data.EndDate;
+        selectedEntryStartDate = data.StartDate;
+        selectedEntryModel = data.Entry;
         ShowModal();
     }
 
     public void AddEntry()
     {
+        EditMode = false;
         selectedEntryStartDate = SelectedDate;
         SelectedEntry = new CalendarEntryModel
         {
