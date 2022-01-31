@@ -10,5 +10,6 @@
         public bool IsShared { get; set; }
 
         public List<FolderModel> SubFolders { get; set; }
+        public List<EntryModel> Entries { get; set; }
     }
 }

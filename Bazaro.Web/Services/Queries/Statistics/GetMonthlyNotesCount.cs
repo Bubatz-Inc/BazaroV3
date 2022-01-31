@@ -12,7 +12,7 @@ namespace Bazaro.Web.Services.Queries.Statistics
             public string UserId { get; set; }
         }
 
-        public static async Task<List<MonthlyStatViewModel>> Handle(BazaroContext context, Query request)
+        public static async Task<List<MonthlyStatModel>> Handle(BazaroContext context, Query request)
         {
             var folders = await context.Set<UserFolderReference>().Where(x => x.UserId == request.UserId).ToListAsync();
 
@@ -26,7 +26,7 @@ namespace Bazaro.Web.Services.Queries.Statistics
             }
 
             return entries.GroupBy(x => new { x.Created.Month, x.Created.Year })
-                .Select(x => new MonthlyStatViewModel
+                .Select(x => new MonthlyStatModel
                 {
                     Year = x.Key.Year,
                     Month = x.Key.Month,

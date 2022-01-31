@@ -1,5 +1,6 @@
 ﻿using Bazaro.Web.Models;
 using Bazaro.Web.Models.References;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bazaro.Web.Services.Commands.Folders
 {
@@ -12,7 +13,7 @@ namespace Bazaro.Web.Services.Commands.Folders
             public string Title { get; set; }
             public string Description { get; set; }
 
-            public int PreviousFolder { get; set; }
+            public int? PreviousFolder { get; set; }
         }
 
         public static async Task Handle(BazaroContext context, Command request)
@@ -22,12 +23,10 @@ namespace Bazaro.Web.Services.Commands.Folders
                 Title = request.Title,
                 Description = request.Description,
                 Created = DateTime.Now,
+                SubFolder = new List<Folder>()
             };
 
-            if(context.Set<UserFolderReference>().Any(x => x.FolderId == request.PreviousFolder && x.UserId == request.UserId))
-            {
-                data.PreviousFolderId = request.PreviousFolder;
-            }
+            data.PreviousFolderId = request.PreviousFolder;
 
             context.Add(data);
 

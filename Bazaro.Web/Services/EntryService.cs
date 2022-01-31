@@ -13,6 +13,8 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
+        public Task<EntryModel> GetEntryById(GetEntryById.Query request) => Queries.Entries.GetEntryById.Handle(_context, request);
+
         public Task<List<EntryModel>> GetViewEntriesByFolderId(GetViewEntriesByFolderId.Query request) => Queries.Entries.GetViewEntriesByFolderId.Handle(_context, request);
 
         public Task<List<EntryModel>> GetViewEntriesByTitle(GetEntriesByTitle.Query request) => GetEntriesByTitle.Handler(_context, request);

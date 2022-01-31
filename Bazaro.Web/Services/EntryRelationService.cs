@@ -13,7 +13,7 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<EntryReferenceViewModel>> GetReferencesByEntryId(int entryId) => GetEntryReferencesByEntryId.Handle(_context, new GetEntryReferencesByEntryId.Query
+        public Task<List<EntryReferenceModel>> GetReferencesByEntryId(int entryId) => GetEntryReferencesByEntryId.Handle(_context, new GetEntryReferencesByEntryId.Query
         {
             EntryId = entryId
         });
