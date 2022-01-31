@@ -10,40 +10,32 @@
 @inject EntryService entryService
 @inject IHttpContextAccessor httpContext
 @inject UserManager<User> userManager
+@inject NavigationManager Nav
 
 <Menu Style="width: 256px; height: 100%;"
       Theme=theme
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
-          <MenuItemGroup>
             <MenuItem>
                 <Button @onclick="@(() => CreateEntry())">Create Entry</Button>
             </MenuItem>
             <MenuItem>
                 <Button @onclick="@(() => CreateFolder())">Create Folder</Button>
             </MenuItem>
-          </MenuItemGroup>
       @RenderFolderTree(_folders)
+      @foreach(var entry in _toplvlEntries)
+      {
+        <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">@entry.Title</MenuItem>  
+      }
 </Menu>
 
-@*<ContextMenu Id="EntryRightClick" > 
-    <Item OnClick="@(() => TestContextMenu())">Delete</Item>
-    <Item OnClick="@OnClick">Move</Item>
-    <Item OnClick="@OnClick" Enabled="false">Item 3 (disabled)</Item>
-    <Seperator />
-    <Item>Submenu
-        <BlazorContextMenu.SubMenu>
-            <Item OnClick="@OnClick">Submenu Item 1</Item>
-            <Item OnClick="@OnClick">Submenu Item 2</Item>
-        </BlazorContextMenu.SubMenu>
-    </Item>
-</ContextMenu>*@
+<FolderRightclickMenuComponent OnValidSubmit="LoadFolders"/>
+<EntryRightclickMenuComponent OnValidSubmit="LoadFolders"/>
 
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
-
 
     private FolderModel _rootFolder = new();
     private List<FolderModel> _folders = new();
@@ -78,10 +70,19 @@
     // Load entries that do not have a folder
     private async Task LoadOrphanEntries()
     {
+        var username = httpContext.HttpContext.User.Identity.Name;
+        var userId = (await userManager.FindByNameAsync(username)).Id;
+
         _toplvlEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
         {
-            FolderId = null
+            FolderId = _rootFolder.Id,
+            UserId = userId
         });
+    }
+
+    private async Task OpenEntry(int entryId)
+    {
+        Nav.NavigateTo($"/noteeditor/{entryId}");
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
@@ -107,14 +108,13 @@
         @<div>
             @foreach(var folder in folders)
             {
-                <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@folder.Title">
+                <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
+                <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@folder.Title" OnTitleClick="() => LoadFolderEntries(folder)">
                 @if(folder.Entries is not null)
                 {
                     @foreach(var entry in folder.Entries)
                     {
-                        //<ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
                             <MenuItem Key="@entry.Id.ToString()">@entry.Title</MenuItem>
-                        //</ContextMenuTrigger>
                     }
                     @if(folder.SubFolders is not null)
                     {
@@ -122,6 +122,7 @@
                     }        
                 }
                 </AntDesign.SubMenu>
+                </ContextMenuTrigger>
             }
         </div>
     ;
