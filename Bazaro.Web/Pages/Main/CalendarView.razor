@@ -1,8 +1,10 @@
 ﻿@page "/calendar"
 @using Bazaro.Web.Services.Commands.CalendarEntries
 @using Bazaro.Web.Services.ViewModels
+@using Blazored.Typeahead
 @inject IHttpContextAccessor http
 @inject CalendarService cs
+@inject EntryService es
 @inherits OwningComponentBase<UserManager<User>>
 
 <h3>Calendar</h3>
@@ -17,11 +19,85 @@
        ConfirmLoading="@_confirmLoading">
     <div>
         @SelectedEntry.StartDate.Date.ToLongDateString()
+        <div>
+            <BlazoredTypeahead SearchMethod="SearchEntryModels"
+                    TValue="EntryModel"
+                    TItem="EntryModel"
+                    @bind-Value="selectedEntryModel"
+                    placeholder="Select Note...">
+                <SelectedTemplate Context="entry">
+                    @{
+                        <text>@entry?.Title (Id: @entry?.Id)</text>
+                    }
+                </SelectedTemplate> 
+                <ResultTemplate Context="entry">
+                    @entry.Title (Id: @entry.Id)
+                </ResultTemplate>
+            </BlazoredTypeahead>
+            <div>
+                <RangePicker TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+            </div>
+        </div>
+        @if (selectedEntryModel is not null)
+        {
+            <p>@selectedEntryModel.Title (Id: @selectedEntryModel.Id)</p>
+            <p>@SelectedEntry?.Entry?.Title</p>
+            <p>@selectedEntryStartDate?.ToShortDateString()</p>
+            <p>@selectedEntryEndDate?.ToShortDateString()</p>
+        }
     </div>
 </Modal>
 
 @code
 {
+    private DateTime? selectedEntryStartDate { get; set; }
+    private DateTime? selectedEntryEndDate { get; set; }
+
+    private void OnDateChange(DateRangeChangedEventArgs args)
+    {
+        selectedEntryStartDate = args.Dates[0];
+        selectedEntryEndDate = args.Dates[1];
+    }
+
+    private EntryModel selectedEntryModel { get; set; }
+    private List<EntryModel> foundEntryModels { get; set; } = new List<EntryModel>
+    {
+        new EntryModel
+        {
+            Id = 1,
+            Title = "Amogus",
+            Description = "Crazy Description"
+        },
+        new EntryModel
+        {
+            Id = 2,
+            Title = "Whoppy Charge",
+            Description = "Crazy Description"
+        },
+        new EntryModel
+        {
+            Id = 3,
+            Title = "What da Racoon doin",
+            Description = "Crazy Description"
+        } 
+    };
+
+    private async Task SelectedEntryModelChanged(EntryModel em)
+    {
+        selectedEntryModel = em;
+    }
+
+    private async Task<IEnumerable<EntryModel>> SearchEntryModels(string searchText) 
+    {
+        foundEntryModels = (await es.GetViewEntriesByTitle(new Services.Queries.Entries.GetEntriesByTitle.Query
+            {
+                Title = searchText,
+                MaxCount = 25
+            })) ?? foundEntryModels;
+
+        return foundEntryModels;
+    } 
+
     private List<CalendarEntryModel> GetListDataTest(DateTime value)
     {
         List<CalendarEntryModel> listData = null;
