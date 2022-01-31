@@ -24,6 +24,8 @@ namespace Bazaro.Web.Services.Commands.Items
             };
 
             context.Add(newItem);
+            
+            await context.SaveChangesAsync();
 
             if (!request.PreviousItemId.HasValue)
             {

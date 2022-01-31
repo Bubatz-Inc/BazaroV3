@@ -1,0 +1,104 @@
+﻿@using System.Security.Claims
+@using Bazaro.Web.Models
+@using Bazaro.Web.Services
+@using Bazaro.Web.Services.Commands.Entries
+@using Bazaro.Web.Services.Commands.Folders
+@using Bazaro.Web.Services.ViewModels
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject FolderService folderService
+@inject EntryService entryService
+@inject IHttpContextAccessor httpContext
+@inject UserManager<User> userManager
+
+<ContextMenu Id="EntryRightClick" class="my-menu"> 
+    <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Delete</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item>Move file to...</BlazorContextMenu.Item>
+</ContextMenu>
+
+<Modal Title="Rename Note"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <label>Rename Note</label>
+        <Input @bind-Value="@_entryName"/>
+    </div>
+</Modal>
+
+@code {
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    // Modal Parameters
+    bool _visible = false;
+    bool _confirmLoading = false;
+    string _entryName = "";
+    EntryModel _entry = new();
+
+    private async Task DeleteEntryEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+
+        // Send query
+        await entryService.Delete(new DeleteEntry.Command
+            {
+                Id = entryId
+            });
+
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task RenameEntryEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        // Get entryID from rightlick
+        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id); 
+
+        _entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = entryId
+        });
+
+        _entryName = _entry.Title;
+        ShowModal();
+    }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
+
+        // Send query
+        await entryService.Update(new UpdateEntry.Command
+            {
+                Id = _entry.Id,
+                Title = _entryName
+            });
+
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+
+         await OnValidSubmit.InvokeAsync();
+    }
+}
