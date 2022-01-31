@@ -26,22 +26,39 @@
       @RenderFolderTree(_folders)
       @foreach(var entry in _toplvlEntries)
       {
-        <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">@entry.Title</MenuItem>  
+        <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
+            <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">@entry.Title</MenuItem>  
+        </ContextMenuTrigger>
       }
 </Menu>
 
 <FolderRightclickMenuComponent OnValidSubmit="LoadFolders"/>
-<EntryRightclickMenuComponent OnValidSubmit="LoadFolders"/>
+<EntryRightclickMenuComponent OnValidSubmit="RefreshData" />
+
+
+
 
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
 
-    private FolderModel _rootFolder = new();
+    private FolderModel _rootFolder = null;
     private List<FolderModel> _folders = new();
     private List<EntryModel> _toplvlEntries = new();
 
     protected override async Task OnInitializedAsync()
+    {
+        if(_rootFolder is null)
+        {
+            await LoadFolders();
+        }
+        if(_toplvlEntries.Count == 0 || _toplvlEntries.Count == null)
+        {
+            await LoadOrphanEntries();
+        }
+    }
+
+    private async Task RefreshData()
     {
         await LoadFolders();
         await LoadOrphanEntries();

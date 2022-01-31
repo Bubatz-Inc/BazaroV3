@@ -19,8 +19,26 @@
 </ContextMenu>
 
 
+<Modal Title="Rename Note"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <label>Rename Note</label>
+        <Input @bind-Value="@_entryName"/>
+    </div>
+</Modal>
+
+
 @code {
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    // Modal Parameters
+    bool _visible = false;
+    bool _confirmLoading = false;
+    string _entryName = "";
+    EntryModel _entry = new();
 
     private async Task DeleteEntryEvent(ItemClickEventArgs e)
     {
@@ -45,16 +63,43 @@
             .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
             .Id;
 
-        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
-        string updatedTitle = "New entry (RENAMED)";
+        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id); 
+        _entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = entryId
+        });
+
+        _entryName = _entry.Title;
+        ShowModal();
+    }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
 
         // Send query
         await entryService.Update(new UpdateEntry.Command
             {
-                Id = entryId,
-                Title = updatedTitle
+                Id = _entry.Id,
+                Title = _entryName
             });
 
         await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+
+         await OnValidSubmit.InvokeAsync();
     }
 }
