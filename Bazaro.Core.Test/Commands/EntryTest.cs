@@ -15,7 +15,6 @@ namespace Bazaro.Core.Test.Commands
     public class EntryTest : TestBase, IClassFixture<DatabaseBaseFixture>
     {
         private readonly EntryService _service;
-        private int _folderId;
 
         public EntryTest(DatabaseBaseFixture fixture) : base(fixture)
         {
@@ -26,15 +25,14 @@ namespace Bazaro.Core.Test.Commands
 
         protected override async void DatabaseOneTimeData()
         {
-            var folder = new Folder
+            _context.Add(new Folder
             {
+                Id = 1,
                 PreviousFolderId = null,
                 Description = "test",
                 Created = DateTime.Now,
                 Title = "test"
-            };
-
-            _context.Add(folder);
+            });
 
             _context.Add(new Entry
             {
@@ -45,8 +43,6 @@ namespace Bazaro.Core.Test.Commands
             });
 
             await _context.SaveChangesAsync();
-
-            _folderId = folder.Id;
         }
 
         [Fact]
@@ -63,7 +59,7 @@ namespace Bazaro.Core.Test.Commands
             {
                 Description = "test",
                 Title = "Test",
-                FolderId = _folderId
+                FolderId = 1
             });
 
             var data = _context.Set<Entry>().ToList();
@@ -78,8 +74,7 @@ namespace Bazaro.Core.Test.Commands
             Assert.Equal("test", dataItem.Description);
             Assert.Equal("Test", dataItem.Title);
 
-            Assert.Equal(_folderId, dataRef.FolderId);
-            Assert.Equal(dataItem.Id, dataRef.EntryId);
+            Assert.Equal(1, dataRef.FolderId);
             
             _context.RemoveRange(_context.Set<Entry>());
             _context.RemoveRange(_context.Set<FolderEntryReference>());
@@ -89,24 +84,42 @@ namespace Bazaro.Core.Test.Commands
         [Fact]
         public async Task UpdateEntryPassingTest()
         {
-            var data = _context.Set<Entry>().First();
+            var dataOld = _context.Set<Entry>().First();
             _context.Add(new FolderEntryReference
             {
                 Created = DateTime.Now,
-                EntryId = data.Id,
+                EntryId = dataOld.Id,
                 FolderId = null,
             });
 
-            Assert.NotNull(data);
+            await _context.SaveChangesAsync();
+
+            Assert.NotNull(dataOld);
 
             await _service.Update(new Web.Services.Commands.Entries.UpdateEntry.Command
             {
-                Id = data.Id,
+                Id = dataOld.Id,
                 Description = "test1",
                 Title = "Test1",
                 OldFolderId = null,
-                NewFolderId = _folderId
+                NewFolderId = 1
             });
+
+            var newData = await _context.Set<Entry>().ToListAsync();
+            var newDataRef = await _context.Set<FolderEntryReference>().FirstAsync();
+
+            Assert.NotNull(newData);
+            Assert.NotNull(newDataRef);
+            Assert.NotEmpty(newData);
+            Assert.Single(newData);
+
+            var item = newData.First();
+
+            Assert.NotNull(item);
+            Assert.Equal("Test1", item.Title);
+            Assert.Equal("test1", item.Description);
+
+            Assert.Equal(1, newDataRef.FolderId);
         }
     }
 }
