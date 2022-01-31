@@ -14,11 +14,28 @@
 <ContextMenu Id="FolderRightClick"> 
     <BlazorContextMenu.Item OnClick="@RenameFolderEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Delete</BlazorContextMenu.Item>
-    <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Move file to...</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item >Move file to...</BlazorContextMenu.Item>
 </ContextMenu>
+
+<Modal Title="Rename Folder"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <label>Rename Folder</label>
+        <Input @bind-Value="@_folderName"/>
+    </div>
+</Modal>
 
 @code {
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    // Modal Parameters
+    bool _visible = false;
+    bool _confirmLoading = false;
+    string _folderName = "";
+    FolderModel _folder = new();
 
     private async Task DeleteFolderEvent(ItemClickEventArgs e)
     {
@@ -38,18 +55,51 @@
 
     private async Task RenameFolderEvent(ItemClickEventArgs e)
     {
+        // Get UserId
         string userId = (await userManager
             .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
             .Id;
 
+        // Get folderID from rightclick
         int folderId = Convert.ToInt32(e.ContextMenuTrigger.Id);
-        string updatedTitle = "New folder (RENAMED)";
+        
+        // GET FOLDER BY ID
+        //_folder = await folderService.(new Services.Queries.Entries.GetEntryById.Query
+        //{
+        //    Id = folderId
+        //});
+
+        _folderName = _folder.Title;
+        ShowModal();
+    }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
 
         // Send query
         await folderService.Update(new UpdateFolder.Command
             {
-                Id = folderId,
-                Title = updatedTitle
+                Id = _folder.Id,
+                Title = _folderName
             });
+
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+
+         await OnValidSubmit.InvokeAsync();
     }
 }

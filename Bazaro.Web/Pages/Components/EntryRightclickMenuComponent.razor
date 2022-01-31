@@ -13,8 +13,8 @@
 
 <ContextMenu Id="EntryRightClick" class="my-menu"> 
     <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
-    <BlazorContextMenu.Item>Delete</BlazorContextMenu.Item>
-    <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Move file to...</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Delete</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item>Move file to...</BlazorContextMenu.Item>
 </ContextMenu>
 
 <Modal Title="Rename Note"
@@ -60,7 +60,9 @@
             .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
             .Id;
 
+        // Get entryID from rightlick
         int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id); 
+
         _entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
         {
             Id = entryId

@@ -17,11 +17,10 @@
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
+      <Header>Workspace</Header>
             <MenuItem>
-                <Button @onclick="@(() => CreateEntry())">Create Entry</Button>
-            </MenuItem>
-            <MenuItem>
-                <Button @onclick="@(() => CreateFolder())">Create Folder</Button>
+                <Button @onclick="@(() => CreateEntry())" Icon="file-add"/>
+                <Button @onclick="@(() => CreateFolder())" Icon="folder-add"/>
             </MenuItem>
       @RenderFolderTree(_folders)
       @foreach(var entry in _toplvlEntries)
@@ -43,15 +42,12 @@
     private List<FolderModel> _folders = new();
     private List<EntryModel> _toplvlEntries = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(_rootFolder is null)
+        if (firstRender)
         {
-            await LoadFolders();
-        }
-        if(_toplvlEntries.Count == 0 || _toplvlEntries.Count == null)
-        {
-            await LoadOrphanEntries();
+            await RefreshData();
+            StateHasChanged();
         }
     }
 
@@ -145,9 +141,17 @@
     // Loads a given folder's entries
     private async Task LoadFolderEntries(FolderModel folder)
     {
-        folder.Entries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
-            FolderId = folder.Id
-        });
+        if(folder.Entries is null)
+        {
+            folder.Entries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
+                FolderId = folder.Id
+            });
+
+            if(folder.Entries is null)
+            {
+                folder.Entries = new();
+            }
+        }
     }
 
     // Query to create new Note / Entry
