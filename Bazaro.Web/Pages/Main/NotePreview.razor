@@ -1,0 +1,47 @@
+﻿@page "/NotePreview/{EntryId:int}"
+@using System.Text
+@using Bazaro.Web.Services
+@using Bazaro.Web.Models
+@inject ItemService itemservice
+@inject EntryService entryservice
+
+<div id="editor">
+    @((MarkupString)markdownHtml)
+</div>
+
+<style>
+    .editor {
+        height: 100%;
+    } 
+</style>
+
+@code {
+    [Parameter]
+    public int EntryId { get; set; }
+
+    private string markdownHtml;
+    private EntryModel entry { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = EntryId
+        }
+        );
+        ItemModel item = new();
+        item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+        if(item.ContentType.Id == 1)
+        {
+            string markdownText = Encoding.UTF8.GetString(item.Content);
+            markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
+        }
+        
+
+        await base.OnInitializedAsync();
+    }
+
+
+    
+}

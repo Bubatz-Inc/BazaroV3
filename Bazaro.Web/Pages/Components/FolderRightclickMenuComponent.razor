@@ -1,0 +1,55 @@
+﻿@using System.Security.Claims
+@using Bazaro.Web.Models
+@using Bazaro.Web.Services
+@using Bazaro.Web.Services.Commands.Entries
+@using Bazaro.Web.Services.Commands.Folders
+@using Bazaro.Web.Services.ViewModels
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject FolderService folderService
+@inject EntryService entryService
+@inject IHttpContextAccessor httpContext
+@inject UserManager<User> userManager
+
+<ContextMenu Id="FolderRightClick"> 
+    <BlazorContextMenu.Item OnClick="@RenameFolderEvent">Rename</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Delete</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Move file to...</BlazorContextMenu.Item>
+</ContextMenu>
+
+@code {
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private async Task DeleteFolderEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        int folderId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+
+        // Send query
+        await folderService.Delete(new DeleteFolder.Command
+            {
+                Id = folderId,
+                UserId = userId
+            });
+    }
+
+    private async Task RenameFolderEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        int folderId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+        string updatedTitle = "New folder (RENAMED)";
+
+        // Send query
+        await folderService.Update(new UpdateFolder.Command
+            {
+                Id = folderId,
+                Title = updatedTitle
+            });
+    }
+}

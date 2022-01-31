@@ -6,79 +6,97 @@
 @using Bazaro.Web.Services.ViewModels
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@inject FolderService fs
-@inject EntryService es
-@inject IHttpContextAccessor http
-@inject UserManager<User> um
+@inject FolderService folderService
+@inject EntryService entryService
+@inject IHttpContextAccessor httpContext
+@inject UserManager<User> userManager
+@inject NavigationManager Nav
 
 <Menu Style="width: 256px; height: 100%;"
       Theme=theme
       DefaultSelectedKeys=@(new[] { "1" })
       DefaultOpenKeys=@(new[] { "sub1" })
       Mode=@MenuMode.Inline>
-      <MenuItemGroup>
-        <MenuItem>
-            <Button @onclick="CreateEntry">Create Entry</Button>
-        </MenuItem>
-        <MenuItem>
-            <Button @onclick="CreateFolder">Create Folder</Button>
-        </MenuItem>
-      </MenuItemGroup>
+            <MenuItem>
+                <Button @onclick="@(() => CreateEntry())">Create Entry</Button>
+            </MenuItem>
+            <MenuItem>
+                <Button @onclick="@(() => CreateFolder())">Create Folder</Button>
+            </MenuItem>
       @RenderFolderTree(_folders)
+      @foreach(var entry in _toplvlEntries)
+      {
+        <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
+            <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">@entry.Title</MenuItem>  
+        </ContextMenuTrigger>
+      }
 </Menu>
+
+<FolderRightclickMenuComponent OnValidSubmit="LoadFolders"/>
+<EntryRightclickMenuComponent OnValidSubmit="RefreshData" />
 
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
 
-    RenderFragment sub1Title =
-    @<span>
-        <Icon Type="mail" Theme="outline"></Icon>
-        <span>Navigation One</span>
-    </span>;
-
-    RenderFragment sub2Title =
-    @<span>
-        <Icon Type="appstore" Theme="outline"></Icon>
-        <span>Navigation Two</span>
-    </span>;
-
-    RenderFragment sub4Title =
-    @<span>
-        <Icon Type="setting" Theme="outline"></Icon>
-        <span>Navigation Three</span>
-    </span>
-    ;
-
-
-    private FolderModel _rootFolder = new();
+    private FolderModel _rootFolder = null;
     private List<FolderModel> _folders = new();
     private List<EntryModel> _toplvlEntries = new();
 
     protected override async Task OnInitializedAsync()
     {
+        if(_rootFolder is null)
+        {
+            await LoadFolders();
+        }
+        if(_toplvlEntries.Count == 0 || _toplvlEntries.Count == null)
+        {
+            await LoadOrphanEntries();
+        }
+    }
+
+    private async Task RefreshData()
+    {
         await LoadFolders();
+        await LoadOrphanEntries();
     }
 
     private async Task LoadFolders()
     {
         // Get userID to retrieve folders and entries from the DB
-        var username = http.HttpContext.User.Identity.Name;
-        var userId = (await um.FindByNameAsync(username)).Id;
-
-        _toplvlEntries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
-        {
-            FolderId = null
-        });
+        var username = httpContext.HttpContext.User.Identity.Name;
+        var userId = (await userManager.FindByNameAsync(username)).Id;
 
         // Load root folder
-        FolderModel rootFolder = await fs.GetViewFolderStructureByuserId(userId);
+        _rootFolder = await folderService.GetViewFolderStructureByuserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
+        {
+            UserId = userId,
+            FolderId = null,
+        });
 
-        if(rootFolder.SubFolders is not null)
+        if(_rootFolder.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
-            _folders = LoadFoldersAndSubFolders(rootFolder.SubFolders);
+            _folders = LoadFoldersAndSubFolders(_rootFolder.SubFolders);
         }
+    }
+
+    // Load entries that do not have a folder
+    private async Task LoadOrphanEntries()
+    {
+        var username = httpContext.HttpContext.User.Identity.Name;
+        var userId = (await userManager.FindByNameAsync(username)).Id;
+
+        _toplvlEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+        {
+            FolderId = _rootFolder.Id,
+            UserId = userId
+        });
+    }
+
+    private async Task OpenEntry(int entryId)
+    {
+        Nav.NavigateTo($"/noteeditor/{entryId}");
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
@@ -104,19 +122,21 @@
         @<div>
             @foreach(var folder in folders)
             {
-                <MenuItemGroup Key="@folder.Id.ToString()" Title="@folder.Title">
+                <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
+                <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@folder.Title" OnTitleClick="() => LoadFolderEntries(folder)">
                 @if(folder.Entries is not null)
                 {
                     @foreach(var entry in folder.Entries)
                     {
-                        <MenuItem Key="@entry.Id.ToString()">@entry.Title</MenuItem>
+                            <MenuItem Key="@entry.Id.ToString()">@entry.Title</MenuItem>
                     }
                     @if(folder.SubFolders is not null)
                     {
                         RenderFolderTree(folder.SubFolders);
                     }        
                 }
-                </MenuItemGroup>
+                </AntDesign.SubMenu>
+                </ContextMenuTrigger>
             }
         </div>
     ;
@@ -125,36 +145,52 @@
     // Loads a given folder's entries
     private async Task LoadFolderEntries(FolderModel folder)
     {
-        folder.Entries = await es.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
+        folder.Entries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
             FolderId = folder.Id
         });
     }
 
     // Query to create new Note / Entry
-    private async Task CreateEntry()
+    private async Task CreateEntry(int? folderId = null)
     {
+        // Check if FolderID was specified (create entry in root if not)
+        if(folderId is null)
+        {
+            folderId = _rootFolder.Id;
+        }
+
         // Send query
-        await es.Insert(new InsertEntry.Command
+        await entryService.Insert(new InsertEntry.Command
         {
             Title = "New Note",
-            Description = ""
+            Description = "",
+            FolderId = (int)folderId
         });
+
+        await LoadFolders();
     }
 
     // Query to create new Folder
-    private async Task CreateFolder()
+    private async Task CreateFolder(int? previousFolderId = null)
     {
-        string userId = (await um
-            .FindByNameAsync(http.HttpContext.User.Identity.Name))
+        if(previousFolderId is null)
+        {
+            previousFolderId = _rootFolder.Id;
+        }
+
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
             .Id;
 
         // Send query
-        await fs.Insert(new InsertFolder.Command
+        await folderService.Insert(new InsertFolder.Command
         {
-            PreviousFolder = _rootFolder.Id,
+            PreviousFolder = previousFolderId,
             Title = "New Folder",
             Description = "",
             UserId = userId
         });
+
+        await LoadFolders();
     }
 }

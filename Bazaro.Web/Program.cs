@@ -50,15 +50,16 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddTransient<EntryService>();
-builder.Services.AddTransient<FolderService>();
-builder.Services.AddTransient<ItemService>();
-builder.Services.AddTransient<EntryRelationService>();
-builder.Services.AddTransient<StatisticService>();
-builder.Services.AddTransient<CalendarService>();
-builder.Services.AddTransient<ContentTypeSevice>();
+builder.Services.AddScoped<EntryService>();
+builder.Services.AddScoped<FolderService>();
+builder.Services.AddScoped<ItemService>();
+builder.Services.AddScoped<EntryRelationService>();
+builder.Services.AddScoped<StatisticService>();
+builder.Services.AddScoped<CalendarService>();
+builder.Services.AddScoped<ContentTypeSevice>();
 
 builder.Services.AddAntDesign();
+builder.Services.AddBlazorContextMenu();
 
 builder.Services
     .AddBlazorise(options =>
