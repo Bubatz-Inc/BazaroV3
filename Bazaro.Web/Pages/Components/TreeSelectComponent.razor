@@ -1,57 +1,75 @@
-﻿<TreeSelect TItem="Data" 
-                  Style="width:100%;"
-                  DataSource="treeData"
-                  @bind-Value="@value"
-                  Placeholder="Please select"
-                  AllowClear
-                  TitleExpression="data => data.Title"
-                  KeyExpression="data => data.Value"
-                  ChildrenExpression="data => data.Children "
-				  IsLeafExpression="data => data.Children == null "
-                  TreeDefaultExpandAll>
-</TreeSelect>
+﻿@using System.Security.Claims
+@using Bazaro.Web.Models
+@using Bazaro.Web.Services
+@using Bazaro.Web.Services.Commands.Entries
+@using Bazaro.Web.Services.Commands.Folders
+@using Bazaro.Web.Services.ViewModels
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject FolderService folderService
+@inject EntryService entryService
+@inject IHttpContextAccessor httpContext
+@inject UserManager<User> userManager
 
+<Modal Title="Move folder to..."
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <TreeSelect TItem="string"
+			Style="width:100%;"
+			@bind-Value="value"
+			Placeholder="Please select"
+			AllowClear
+			TreeDefaultExpandAll>
+            @RenderFolderTree(_rootFolder.SubFolders)
+</TreeSelect>
+    </div>
+</Modal>
 
 @code {
     [Parameter] public FolderModel _rootFolder { get; set; }
+    [Parameter] public FolderModel _folderToMove { get; set; }
     [Parameter] public EventCallback<int> OnValidSubmit { get; set; }
+
+    // Tree Parameters
     private string value;
 
     // Modal Parameters
     [Parameter] public bool _visible { get; set; } = false;
     bool _confirmLoading = false;
-    int _selectedFolderId;
+    int _selectedTopFolderId;
 
-    Data[] treeData = new Data[] {};
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        LoadTreeData(_rootFolder.SubFolders);
-        ShowModal();
-    }
-
-    private void LoadTreeData(List<FolderModel> folders)
-    {
-        foreach(var folder in folders)
+        if(firstRender)
         {
-            if(folder.SubFolders is not null)
-            {
-                LoadTreeData(folder.SubFolders);
-            }
-
-            treeData.Append(new Data
-                {
-                    Title = folder.Title,
-                    Value = folder.Id.ToString()
-                });
+            ShowModal();
         }
     }
 
-    public class Data
+    // Render fragment for tree view
+    private RenderFragment RenderFolderTree(List<FolderModel> folders)
     {
-        public string Value { get; set; }
-        public string Title { get; set; }
-        public Data[] Children { get; set; }
+        return 
+        @<div>
+            @foreach(var folder in folders)
+            {
+                @if(_folderToMove.Id == folder.Id)
+                {
+                    continue;
+                }
+                <TreeNode TItem="string" Key="@folder.Id.ToString()" Title="@folder.Title">
+                    @if(folder.SubFolders is not null)
+                    {
+                        RenderFolderTree(folder.SubFolders);
+                    }        
+                </TreeNode>
+            }
+        </div>
+    ;
     }
 
     private void ShowModal()
@@ -65,10 +83,14 @@
         StateHasChanged();
         _visible = false;
         _confirmLoading = false;
-
         string localvalue = value;
 
-        await OnValidSubmit.InvokeAsync(_selectedFolderId);
+        // folder null and _selectedTopFolderId 0
+        _selectedTopFolderId = Convert.ToInt32(value);
+
+        await MoveFolderIntoFolderId(_selectedTopFolderId, _folderToMove.Id);
+
+        await OnValidSubmit.InvokeAsync();
     }
 
     private async Task HandleCancel(MouseEventArgs e)
@@ -76,6 +98,27 @@
         Console.WriteLine("Clicked cancel button");
         _visible = false;
 
-         await OnValidSubmit.InvokeAsync();
+        await OnValidSubmit.InvokeAsync();
     }
+
+    private async Task MoveFolderIntoFolderId(int topFolderId, int subFolderId)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        // GET FOLDER BY ID
+        var _subFolder = await folderService.GetViewFolderById(new Services.Queries.Folders.GetFolderById.Query
+        {
+            Id = subFolderId
+        });
+
+        // Send query
+        await folderService.Update(new UpdateFolder.Command
+            {
+                Id = subFolderId,
+                PreviousFolderId = topFolderId
+            });
+    }
+
 }

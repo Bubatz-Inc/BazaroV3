@@ -27,7 +27,7 @@
         <Input @bind-Value="@_folderName"/>
     </div>
 </Modal>
-@if(_rootFolder is not null)
+@if(_rootFolder is not null && _folderMoveModal && _selectedFolder is not null)
 {
     @LoadTreeSelectModal()
 }
@@ -37,6 +37,7 @@
     [Parameter] public FolderModel _rootFolder { get; set; }
 
     private bool _folderMoveModal = false;
+    private FolderModel _selectedFolder;
 
     // Modal Parameters
     bool _visible = false;
@@ -47,10 +48,11 @@
     private RenderFragment LoadTreeSelectModal()
     {
             return
-        @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal/>
-        ;
+    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal _folderToMove=_selectedFolder OnValidSubmit=ReturnCallback/>
+    ;
     }
 
+    // Runs when "Delete" is pressed on the right click context menu
     private async Task DeleteFolderEvent(ItemClickEventArgs e)
     {
         string userId = (await userManager
@@ -92,6 +94,7 @@
         _visible = true;
     }
 
+    // OK for Rename modal
     private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
@@ -109,6 +112,7 @@
         await OnValidSubmit.InvokeAsync();
     }
 
+    // Cancel for Rename modal
     private async Task HandleCancel(MouseEventArgs e)
     {
         Console.WriteLine("Clicked cancel button");
@@ -117,8 +121,20 @@
         await OnValidSubmit.InvokeAsync();
     }
 
-    private void ToggleMoveModal()
+    // Toggles the visibility of the "Moving Folder to..." modal
+    private async Task ToggleMoveModal(ItemClickEventArgs e)
     {
         _folderMoveModal = !_folderMoveModal;
+        int _selectedFolderId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+
+        _selectedFolder = await folderService.GetViewFolderById(new Services.Queries.Folders.GetFolderById.Query
+        {
+            Id = _selectedFolderId
+        });
+    }
+
+    private async Task ReturnCallback()
+    {
+        await OnValidSubmit.InvokeAsync();
     }
 }
