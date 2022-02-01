@@ -6,15 +6,37 @@
 @inject ItemService itemservice
 @inject EntryService entryservice
 
-<h3>Notes</h3>
+@if(TextAreaError == 1)
+{
+    <Alert Type="@AlertType.Error"
+       Message="Editor is empty"
+       Description="The Editor must have some Text."
+       ShowIcon="true" 
+       Closable="true"
+       Class=/>
+}
+
+@if(TitleError == 1)
+{
+    <Alert Type="@AlertType.Error"
+       Message="Title is empty"
+       Description="The Title must have a Value."
+       ShowIcon="true" 
+       Closable="true"
+       Class=/>
+}
+
+<h3 class="p-2">Notes</h3>
 <div class="p-2">
-    <Input type="Text" class="container-fluid" @bind-Value=entry.Title></Input>
+    <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
 </div>
 <div class="p-2">
-    <TextArea Rows=50 @bind-Value=TextAreaValue > </TextArea>
+    <TextArea Rows="50" @bind-Value=TextAreaValue > </TextArea>
 </div>
-<Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
-<Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+<div class="p-2">
+    <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
+    <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+</div>
 
 
 
@@ -30,14 +52,21 @@
     [Parameter]
     public int EntryId { get; set; }
 
+    //bind to this value
     public string TextAreaValue { get; set; }
-    private string Title {  get; set; }
+    
+    
     private EntryModel entry { get; set; }
+
+    // used to display Error messeages for the inputs
+    public int TitleError { get; set; }
+    public int TextAreaError { get; set; }
 
     private async Task ShowPreview()
     {
         await Save();
-        NavManager.NavigateTo("/NotePreview/" + @EntryId);
+        if((TextAreaValue != null) && (entry.Title != null))
+            NavManager.NavigateTo("/NotePreview/" + @EntryId);
     }
 
     public async Task Save()
@@ -52,7 +81,12 @@
                 Title = entry.Title
             });
         }
-            
+        else
+        {
+            TitleError = 1;
+            StateHasChanged();
+        }
+
 
         if(TextAreaValue != null)
         {
@@ -63,28 +97,31 @@
                 EntryId = EntryId
             }
             );
+        }else {
+            TextAreaError = 1;
+            StateHasChanged();
         }
-     
+        StateHasChanged();
+        ShouldRender();
     }
 
-        protected override async Task OnInitializedAsync()
-        {
+    protected override async Task OnInitializedAsync()
+    {
 
-            entry = new();
-            entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
-                {
-                    Id = EntryId
-                }
-            );
-
-            if(entry.StartItemId != null)
+        entry = new();
+        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
             {
-                ItemModel item = new();
-                item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-                TextAreaValue = Encoding.UTF8.GetString(item.Content);
+                Id = EntryId
             }
+        );
 
-            await base.OnInitializedAsync();
+        if(entry.StartItemId != null)
+        {
+            ItemModel item = new();
+            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+            TextAreaValue = Encoding.UTF8.GetString(item.Content);
         }
 
+        await base.OnInitializedAsync();
+    }
 }
