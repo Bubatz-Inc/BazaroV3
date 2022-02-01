@@ -1,17 +1,4 @@
-﻿@using System.Security.Claims
-@using Bazaro.Web.Models
-@using Bazaro.Web.Services
-@using Bazaro.Web.Services.Commands.Entries
-@using Bazaro.Web.Services.Commands.Folders
-@using Bazaro.Web.Services.ViewModels
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Identity
-@inject FolderService folderService
-@inject EntryService entryService
-@inject IHttpContextAccessor httpContext
-@inject UserManager<User> userManager
-
-<ContextMenu Id="EntryRightClick" class="my-menu"> 
+﻿<ContextMenu Id="EntryRightClick" class="my-menu"> 
     <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Delete</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@ToggleMoveModal">Move file to...</BlazorContextMenu.Item>
@@ -27,7 +14,7 @@
         <Input @bind-Value="@_entryName"/>
     </div>
 </Modal>
-@if(_rootFolder is not null && _entryMoveModal && _selectedEntry is not null)
+@if(_rootFolder is not null && _entryMoveModal && _selectedEntry is not null && _currentParentFolder != null)
 {
     @LoadTreeSelectModal()
 }
@@ -38,6 +25,7 @@
 
     private bool _entryMoveModal = false;
     private EntryModel _selectedEntry;
+    private int _currentParentFolder;
 
     // Modal Parameters
     bool _visible = false;
@@ -72,12 +60,15 @@
         {
             Id = _selectedEntryId
         });
+
+        var entryRelations = await entryRelationService.GetReferencesByEntryId(_selectedEntryId);
+        
     }
 
     private RenderFragment LoadTreeSelectModal()
     {
             return
-    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_entryMoveModal  OnValidSubmit=ReturnCallback isEntry=true _entryToMove=_selectedEntry/>
+    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_entryMoveModal  OnValidSubmit=ReturnCallback isEntry=true _entryToMove=_selectedEntry _oldFolder=_currentParentFolder/>
     ;
     }
 

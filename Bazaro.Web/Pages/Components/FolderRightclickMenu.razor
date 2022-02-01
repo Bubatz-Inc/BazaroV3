@@ -1,17 +1,4 @@
-﻿@using System.Security.Claims
-@using Bazaro.Web.Models
-@using Bazaro.Web.Services
-@using Bazaro.Web.Services.Commands.Entries
-@using Bazaro.Web.Services.Commands.Folders
-@using Bazaro.Web.Services.ViewModels
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Identity
-@inject FolderService folderService
-@inject EntryService entryService
-@inject IHttpContextAccessor httpContext
-@inject UserManager<User> userManager
-
-<ContextMenu Id="FolderRightClick"> 
+﻿<ContextMenu Id="FolderRightClick"> 
     <BlazorContextMenu.Item OnClick="@RenameFolderEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteFolderEvent">Delete</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@ToggleMoveModal" >Move file to...</BlazorContextMenu.Item>

@@ -1,16 +1,10 @@
-﻿@using System.Security.Claims
-@using Bazaro.Web.Models
-@using Bazaro.Web.Services
-@using Bazaro.Web.Services.Commands.Entries
-@using Bazaro.Web.Services.Commands.Folders
-@using Bazaro.Web.Services.ViewModels
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Identity
-@inject FolderService folderService
-@inject EntryService entryService
-@inject IHttpContextAccessor httpContext
-@inject UserManager<User> userManager
-@inject NavigationManager Nav
+﻿@inject NavigationManager Nav
+
+@*   
+------------------------------------
+--- FOLDER & ENTRY NAV SIDEBAR -----
+------------------------------------
+*@
 
 <div class="wrapper">
     <Menu Style="width: 256px; height: 100%; margin-left: 58px;"
@@ -33,7 +27,7 @@
           @RenderFolderTree(_folders)
 
           @* Load Ophan (root level) entries *@
-          @foreach(var entry in _toplvlEntries)
+          @foreach(var entry in _orphanEntries)
           {
             <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
                 <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</MenuItem>  
@@ -42,18 +36,20 @@
     </Menu>
 </div>
 
-<FolderRightclickMenuComponent OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
-<EntryRightclickMenuComponent OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
+<FolderRightclickMenu OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
+<EntryRightclickMenu OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
 
 @code
 {
     MenuTheme theme = MenuTheme.Dark;
 
     private FolderModel _rootFolder = null;
+
+    // Folders displayed on the sidebar
     private List<FolderModel> _folders = new();
-    private List<EntryModel> _toplvlEntries = new();
-    private FolderModel _subfolderLoadModel = new();
-    private bool _subfoldersAreLoaded = false;
+
+    // Entries of with root folder as parent
+    private List<EntryModel> _orphanEntries = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -63,6 +59,11 @@
             StateHasChanged();
         }
     }
+
+    /* ------------------------------------
+     * -------- FOLDER TREE LOGIC ---------
+     * ------------------------------------
+     */
 
     private async Task RefreshData()
     {
@@ -86,25 +87,6 @@
             // Load subfolders into folders using recursive method
             _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
         }
-    }
-
-
-
-    // Load entries that do not have a folder
-    private async Task LoadOrphanEntries()
-    {
-        var userId = await GetCurrentUserId();
-
-        _toplvlEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
-        {
-            FolderId = _rootFolder.Id,
-            UserId = userId
-        });
-    }
-
-    private async Task OpenEntry(int entryId)
-    {
-        Nav.NavigateTo($"/noteeditor/{entryId}");
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
@@ -132,6 +114,45 @@
         return returnFolders;
     }
 
+    // Loads Entries into folders to be displayed in the sidebar
+    private async Task LoadEntries()
+    {
+        List<FolderModel> localFolders = _folders;
+
+        var userId = await GetCurrentUserId();
+
+        foreach(var folder in _folders)
+        {
+            List<EntryModel> folderEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+                {
+                    FolderId = folder.Id,
+                    UserId = userId
+                });
+
+            var updatedFolder = localFolders.FirstOrDefault(f => f.Id == folder.Id);
+            updatedFolder.Entries = folderEntries;
+        }
+
+        _folders = localFolders;
+    }
+
+    // Load entries that do not have a folder
+    private async Task LoadOrphanEntries()
+    {
+        var userId = await GetCurrentUserId();
+
+        _orphanEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
+        {
+            FolderId = _rootFolder.Id,
+            UserId = userId
+        });
+    }
+
+    /* ------------------------------------
+     * ------ FOLDER TREE RENDERING -------
+     * ------------------------------------
+     */
+
     // Render fragment for tree view
     private RenderFragment RenderFolderTree(List<FolderModel> folders)
     {
@@ -140,47 +161,47 @@
             @foreach(var folder in folders)
             {
                 <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
-                <div>
-                @{string title = "📁" + folder.Title;}
-                <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title" OnTitleClick="() => LoadFolderDataOnClick(folder)" >
-                @if(folder.Entries is not null)
-                {
-                    @foreach(var entry in folder.Entries)
-                    {
-                            <MenuItem Key="@entry.Id.ToString()">📋 @entry.Title</MenuItem>
-                    }
-                }
-                @* Render subfolders *@
-                @if(folder.SubFolders is not null && folder.SubFolders.Count != 0)
-                {
-                    @RenderFolderTree(folder.SubFolders);
-                }
-
-                </AntDesign.SubMenu>
-                </div>
+                    @{string title = "📁" + folder.Title;}
+                    <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title"  >
+                        @if(folder.Entries is not null)
+                        {
+                            @foreach(var entry in folder.Entries)
+                            {
+                                <MenuItem Key="@entry.Id.ToString()">📋 @entry.Title</MenuItem>
+                            }
+                        }
+                        @* Render subfolders *@
+                        @if(folder.SubFolders is not null && folder.SubFolders.Count != 0)
+                        {
+                            @RenderFolderTree(folder.SubFolders);
+                        }
+                    </AntDesign.SubMenu>
                 </ContextMenuTrigger>
             }
         </div>
     ;
     }
 
+    /* ------------------------------------
+     * ------ OTHER LOGIC -------
+     * ------------------------------------
+     */
 
-    // Loads a given folder's entries
-    private async Task LoadFolderDataOnClick(FolderModel folder)
+    private async Task OpenEntry(int entryId)
     {
-        if(folder.Entries is null)
-        {
-            folder.Entries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query{
-                FolderId = folder.Id
-            });
-
-            if(folder.Entries is null)
-            {
-                folder.Entries = new();
-            }
-
-        }
+        Nav.NavigateTo($"/noteeditor/{entryId}");
     }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var username = httpContext.HttpContext.User.Identity.Name;
+        return (await userManager.FindByNameAsync(username)).Id;
+    }
+
+    /* ------------------------------------
+     * ------------ DB QUERIES ------------
+     * ------------------------------------
+     */
 
     // Query to create new Note / Entry
     private async Task CreateEntry(int? folderId = null)
@@ -224,11 +245,5 @@
         });
 
         await RefreshData();
-    }
-
-    private async Task<string> GetCurrentUserId()
-    {
-        var username = httpContext.HttpContext.User.Identity.Name;
-        return (await userManager.FindByNameAsync(username)).Id;
     }
 }
