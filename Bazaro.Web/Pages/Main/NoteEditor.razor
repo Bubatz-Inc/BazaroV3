@@ -6,6 +6,8 @@
 @inject ItemService itemservice
 @inject EntryService entryservice
 
+
+<AuthorizeView>
 @if(TextAreaError == 1)
 {
     <Alert Type="@AlertType.Error"
@@ -45,7 +47,7 @@
         height: 100%;
     }
 </style>
-
+</AuthorizeView>
 
 @code {
 
@@ -74,12 +76,15 @@
         if(entry.Title != null)
         {
             await entryservice.Update(new Services.Commands.Entries.UpdateEntry.Command
-            {
-                Description = entry.Description,
-                Id = entry.Id,
-                StartItemId = entry.StartItemId,
-                Title = entry.Title
-            });
+                {
+                    Description = entry.Description,
+                    Id = entry.Id,
+                    StartItemId = entry.StartItemId,
+                    Title = entry.Title
+                }
+            );
+             TitleError = 0;
+             StateHasChanged();
         }
         else
         {
@@ -91,12 +96,14 @@
         if(TextAreaValue != null)
         {
             await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
-            {
-                ContentTypeId = 1,
-                Content = Encoding.UTF8.GetBytes(TextAreaValue),
-                EntryId = EntryId
-            }
+                {
+                    ContentTypeId = 1,
+                    Content = Encoding.UTF8.GetBytes(TextAreaValue),
+                    EntryId = EntryId
+                }
             );
+            TextAreaError = 0;
+            StateHasChanged();
         }else {
             TextAreaError = 1;
             StateHasChanged();
