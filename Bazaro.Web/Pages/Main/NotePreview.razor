@@ -24,7 +24,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
         {
             Id = EntryId
@@ -34,8 +34,12 @@
         item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
         if(item.ContentType.Id == 1)
         {
-            string markdownText = Encoding.UTF8.GetString(item.Content);
-            markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
+            if(item.Content != null)
+            {
+                string markdownText = Encoding.UTF8.GetString(item.Content);
+                markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
+            }
+            
         }
         
 
