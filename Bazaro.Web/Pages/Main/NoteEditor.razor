@@ -7,21 +7,26 @@
 @inject EntryService entryservice
 
 <h3>Notes</h3>
-<div id="editor">
-    <Input type="Text" Class="container-fluid" @bind-Value=entry.Title></Input>
-    <TextArea Rows=50 @bind-Value=TextAreaValue > </TextArea>
-    <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()">Show Preview!</Button>
-    <Button Type="@ButtonType.Primary" @onclick="() => Save()">Save</Button>
+<div class="p-2">
+    <Input type="Text" class="container-fluid" @bind-Value=entry.Title></Input>
 </div>
+<div class="p-2">
+    <TextArea Rows=50 @bind-Value=TextAreaValue > </TextArea>
+</div>
+<Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
+<Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+
 
 
 <style>
-    .editor {
+    .editor{
         height: 100%;
-    } 
+    }
 </style>
+
+
 @code {
-    // class="container-fluid"
+
     [Parameter]
     public int EntryId { get; set; }
 
@@ -37,42 +42,49 @@
 
     public async Task Save()
     {
-        await entryservice.Update(new Services.Commands.Entries.UpdateEntry.Command
+        if(entry.Title != null)
+        {
+            await entryservice.Update(new Services.Commands.Entries.UpdateEntry.Command
             {
                 Description = entry.Description,
                 Id = entry.Id,
                 StartItemId = entry.StartItemId,
                 Title = entry.Title
             });
+        }
+            
 
-        await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
+        if(TextAreaValue != null)
+        {
+            await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
             {
                 ContentTypeId = 1,
                 Content = Encoding.UTF8.GetBytes(TextAreaValue),
                 EntryId = EntryId
             }
-        );
-
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-
-        entry = new();
-        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
-            {
-                Id = EntryId
-            }
-        );
-
-        if(entry.StartItemId != null)
-        {
-            ItemModel item = new();
-            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-            TextAreaValue = Encoding.UTF8.GetString(item.Content);
+            );
         }
-
-        await base.OnInitializedAsync();
+     
     }
+
+        protected override async Task OnInitializedAsync()
+        {
+
+            entry = new();
+            entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+                {
+                    Id = EntryId
+                }
+            );
+
+            if(entry.StartItemId != null)
+            {
+                ItemModel item = new();
+                item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+                TextAreaValue = Encoding.UTF8.GetString(item.Content);
+            }
+
+            await base.OnInitializedAsync();
+        }
 
 }
