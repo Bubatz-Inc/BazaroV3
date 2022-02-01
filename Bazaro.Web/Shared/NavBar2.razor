@@ -18,10 +18,21 @@
           Theme=theme
           Mode=@MenuMode.Inline>
                 <MenuItem>
-                    <Button @onclick="@(() => CreateEntry())" Icon="file-add"/>
-                    <Button @onclick="@(() => CreateFolder())" Icon="folder-add"/>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <Button Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
+                            </div>
+                            <div class="col">
+                                <Button Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
+                            </div>
+                        </div>
+                    </div>
                 </MenuItem>
+          @* Render Folder Tree structure*@
           @RenderFolderTree(_folders)
+
+          @* Load Ophan (root level) entries *@
           @foreach(var entry in _toplvlEntries)
           {
             <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
@@ -41,6 +52,8 @@
     private FolderModel _rootFolder = null;
     private List<FolderModel> _folders = new();
     private List<EntryModel> _toplvlEntries = new();
+    private FolderModel _subfolderLoadModel = new();
+    private bool _subfoldersAreLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -59,12 +72,9 @@
 
     private async Task LoadFolders()
     {
-        // Get userID to retrieve folders and entries from the DB
-        var username = httpContext.HttpContext.User.Identity.Name;
-        var userId = (await userManager.FindByNameAsync(username)).Id;
+        var userId = await GetCurrentUserId();
 
         // Load root folder
-
         _rootFolder = await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
         {
             UserId = userId,
@@ -74,15 +84,14 @@
         if(_rootFolder.SubFolders is not null)
         {
             // Load subfolders into folders using recursive method
-            _folders = LoadFoldersAndSubFolders(_rootFolder.SubFolders);
+            _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
         }
     }
 
     // Load entries that do not have a folder
     private async Task LoadOrphanEntries()
     {
-        var username = httpContext.HttpContext.User.Identity.Name;
-        var userId = (await userManager.FindByNameAsync(username)).Id;
+        var userId = await GetCurrentUserId();
 
         _toplvlEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
         {
@@ -97,15 +106,24 @@
     }
 
     // Recursive method to return folders and fill subfolders with subfolders
-    private List<FolderModel> LoadFoldersAndSubFolders(List<FolderModel> folders)
+    private async Task<List<FolderModel>> LoadFoldersAndSubFolders(List<FolderModel> folders)
     {
+        var userId = await GetCurrentUserId();
+
         List<FolderModel> returnFolders = new();
 
         foreach(var folder in folders)
         {
+            // Fill subfolders from querry into local folder.Subfolders
+            folder.SubFolders = (await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
+            {
+                UserId = userId,
+                FolderId = folder.Id    
+            })).SubFolders;
+
             if(folder.SubFolders is not null)
             {
-                folder.SubFolders = LoadFoldersAndSubFolders(folder.SubFolders);
+                folder.SubFolders = await LoadFoldersAndSubFolders(folder.SubFolders);
             }
             returnFolders.Add(folder);
         }
@@ -127,11 +145,13 @@
                     {
                             <MenuItem Key="@entry.Id.ToString()">@entry.Title</MenuItem>
                     }
-                    @if(folder.SubFolders is not null)
-                    {
-                        RenderFolderTree(folder.SubFolders);
-                    }        
                 }
+                @* Render subfolders *@
+                @if(folder.SubFolders is not null && folder.SubFolders.Count != 0)
+                {
+                    @RenderFolderTree(folder.SubFolders);
+                }
+
                 </AntDesign.SubMenu>
                 </ContextMenuTrigger>
             }
@@ -154,20 +174,6 @@
                 folder.Entries = new();
             }
 
-            if(folder.SubFolders is null)
-            {
-               // Get userID to retrieve folders and entries from the DB
-                var username = httpContext.HttpContext.User.Identity.Name;
-                var userId = (await userManager.FindByNameAsync(username)).Id;
-
-                // Load root folder
-
-                folder.SubFolders = (await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
-                {
-                    UserId = userId,
-                    FolderId = folder.Id,
-                })).SubFolders;
-            }
         }
     }
 
@@ -188,7 +194,7 @@
             FolderId = (int)folderId
         });
 
-        await LoadFolders();
+        await RefreshData();
     }
 
     // Query to create new Folder
@@ -212,6 +218,12 @@
             UserId = userId
         });
 
-        await LoadFolders();
+        await RefreshData();
+    }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var username = httpContext.HttpContext.User.Identity.Name;
+        return (await userManager.FindByNameAsync(username)).Id;
     }
 }
