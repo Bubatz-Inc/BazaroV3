@@ -14,7 +14,7 @@
 <ContextMenu Id="EntryRightClick" class="my-menu"> 
     <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
     <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Delete</BlazorContextMenu.Item>
-    <BlazorContextMenu.Item>Move file to...</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@ToggleMoveModal">Move file to...</BlazorContextMenu.Item>
 </ContextMenu>
 
 <Modal Title="Rename Note"
@@ -27,9 +27,17 @@
         <Input @bind-Value="@_entryName"/>
     </div>
 </Modal>
+@if(_rootFolder is not null && _entryMoveModal && _selectedEntry is not null)
+{
+    @LoadTreeSelectModal()
+}
 
 @code {
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public FolderModel _rootFolder { get; set; }
+
+    private bool _entryMoveModal = false;
+    private EntryModel _selectedEntry;
 
     // Modal Parameters
     bool _visible = false;
@@ -52,6 +60,25 @@
             });
 
         await OnValidSubmit.InvokeAsync();
+    }
+
+    // Toggles the visibility of the "Moving Folder to..." modal
+    private async Task ToggleMoveModal(ItemClickEventArgs e)
+    {
+        _entryMoveModal = !_entryMoveModal;
+        int _selectedEntryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+
+        _selectedEntry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = _selectedEntryId
+        });
+    }
+
+    private RenderFragment LoadTreeSelectModal()
+    {
+            return
+    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_entryMoveModal  OnValidSubmit=ReturnCallback isEntry=true _entryToMove=_selectedEntry/>
+    ;
     }
 
     private async Task RenameEntryEvent(ItemClickEventArgs e)
@@ -96,9 +123,14 @@
 
     private async Task HandleCancel(MouseEventArgs e)
     {
-        Console.WriteLine("Clicked cancel button");
         _visible = false;
 
          await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task ReturnCallback()
+    {
+        _entryMoveModal = false;
+        await OnValidSubmit.InvokeAsync();
     }
 }

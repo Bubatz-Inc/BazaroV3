@@ -31,7 +31,10 @@
 @code {
     [Parameter] public FolderModel _rootFolder { get; set; }
     [Parameter] public FolderModel _folderToMove { get; set; }
+    [Parameter] public EntryModel _entryToMove { get; set; }
+    [Parameter] public int _oldFolder { get; set; }
     [Parameter] public EventCallback<int> OnValidSubmit { get; set; }
+    [Parameter] public bool isEntry { get; set; }
 
     // Tree Parameters
     private string value;
@@ -41,15 +44,6 @@
     bool _confirmLoading = false;
     int _selectedTopFolderId;
 
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(firstRender)
-        {
-            ShowModal();
-        }
-    }
-
     // Render fragment for tree view
     private RenderFragment RenderFolderTree(List<FolderModel> folders)
     {
@@ -57,14 +51,19 @@
         @<div>
             @foreach(var folder in folders)
             {
-                @if(_folderToMove.Id == folder.Id)
+                @* Ignore when an entry is moved *@
+                @if(!isEntry)
                 {
-                    continue;
+                    @* Ignore folder to move to if its the currently moved folder *@
+                    @if(_folderToMove.Id == folder.Id)
+                    {
+                        continue;
+                    }
                 }
                 <TreeNode TItem="string" Key="@folder.Id.ToString()" Title="@folder.Title">
                     @if(folder.SubFolders is not null)
                     {
-                        RenderFolderTree(folder.SubFolders);
+                        @RenderFolderTree(folder.SubFolders);
                     }        
                 </TreeNode>
             }
@@ -72,15 +71,9 @@
     ;
     }
 
-    private void ShowModal()
-    {
-        _visible = true;
-    }
-
     private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
-        StateHasChanged();
         _visible = false;
         _confirmLoading = false;
         string localvalue = value;
@@ -88,17 +81,26 @@
         // folder null and _selectedTopFolderId 0
         _selectedTopFolderId = Convert.ToInt32(value);
 
-        await MoveFolderIntoFolderId(_selectedTopFolderId, _folderToMove.Id);
+        if(isEntry)
+        {
+            await MoveNoteIntoFolderId(_selectedTopFolderId, _oldFolder, _entryToMove.Id);
+        }
+        else
+        {
+            await MoveFolderIntoFolderId(_selectedTopFolderId, _folderToMove.Id);            
+        }
 
+        StateHasChanged();
         await OnValidSubmit.InvokeAsync();
     }
 
     private async Task HandleCancel(MouseEventArgs e)
     {
-        Console.WriteLine("Clicked cancel button");
         _visible = false;
 
+        // throws cuz 2 db access on one context
         await OnValidSubmit.InvokeAsync();
+        StateHasChanged();
     }
 
     private async Task MoveFolderIntoFolderId(int topFolderId, int subFolderId)
@@ -121,4 +123,23 @@
             });
     }
 
+    private async Task MoveNoteIntoFolderId(int newFolderId, int oldFolderId, int entryId)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        var entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+            {
+                Id = entryId
+            });
+
+        // Send query
+        await entryService.Update(new UpdateEntry.Command
+            {
+                Id= entryId,
+                NewFolderId = newFolderId,
+                OldFolderId = oldFolderId
+            });
+    }
 }

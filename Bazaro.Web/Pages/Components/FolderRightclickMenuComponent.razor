@@ -48,7 +48,7 @@
     private RenderFragment LoadTreeSelectModal()
     {
             return
-    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal _folderToMove=_selectedFolder OnValidSubmit=ReturnCallback/>
+    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal _folderToMove=_selectedFolder OnValidSubmit=ReturnCallback isEntry=false/>
     ;
     }
 
@@ -135,6 +135,7 @@
 
     private async Task ReturnCallback()
     {
+        _folderMoveModal = false;
         await OnValidSubmit.InvokeAsync();
     }
 }
