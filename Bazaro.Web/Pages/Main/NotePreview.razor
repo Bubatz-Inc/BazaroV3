@@ -5,6 +5,14 @@
 @inject ItemService itemservice
 @inject EntryService entryservice
 
+<AuthorizeView>
+<div class="p-2">
+    @if(entry != null)
+    {
+        @entry.Title
+    }
+    
+</div>
 <div id="editor">
     @((MarkupString)markdownHtml)
 </div>
@@ -14,7 +22,7 @@
         height: 100%;
     } 
 </style>
-
+</AuthorizeView>
 @code {
     [Parameter]
     public int EntryId { get; set; }
@@ -30,17 +38,21 @@
             Id = EntryId
         }
         );
-        ItemModel item = new();
-        item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-        if(item.ContentType.Id == 1)
+        if(entry != null)
         {
-            if(item.Content != null)
+            ItemModel item = new();
+            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+            if(item.ContentType.Id == 1)
             {
-                string markdownText = Encoding.UTF8.GetString(item.Content);
-                markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
-            }
+                if(item.Content != null)
+                {
+                    string markdownText = Encoding.UTF8.GetString(item.Content);
+                    markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
+                }
             
+            }
         }
+        
         
 
         await base.OnInitializedAsync();
