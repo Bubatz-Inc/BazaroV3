@@ -16,8 +16,6 @@
     <Menu Style="width: 256px; height: 100%; margin-left: 58px;"
           class="sidebar"
           Theme=theme
-          DefaultSelectedKeys=@(new[] { "1" })
-          DefaultOpenKeys=@(new[] { "sub1" })
           Mode=@MenuMode.Inline>
                 <MenuItem>
                     <Button @onclick="@(() => CreateEntry())" Icon="file-add"/>
