@@ -15,6 +15,12 @@ namespace Bazaro.Web.Services.Commands.CalendarEntries
             public DateTime? EndDate { get; set; }
         }
 
+        /// <summary>
+        /// Updates CalendarEntry
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = await context.Set<CalendarEntry>().FirstOrDefaultAsync(x => x.Id == request.CalendarEntryId);

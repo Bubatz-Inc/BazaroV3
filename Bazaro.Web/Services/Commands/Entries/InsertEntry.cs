@@ -13,6 +13,12 @@ namespace Bazaro.Web.Services.Commands.Entries
             public int FolderId { get; set; }
         }
 
+        /// <summary>
+        /// Inserts Entry
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var entry = new Entry

@@ -11,6 +11,12 @@ namespace Bazaro.Web.Services.Commands.ContentTypes
             public string Title { get; set; }
         }
 
+        /// <summary>
+        /// Updates ContentType
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = await context.Set<ContentType>().FirstOrDefaultAsync(x => x.Id == request.Id);
