@@ -121,5 +121,30 @@ namespace Bazaro.Core.Test.Commands
 
             Assert.Equal(1, newDataRef.FolderId);
         }
+
+        [Fact]
+        public async Task DeleteEntryPassingTest()
+        {
+            var oldData = await _context.Set<Entry>().ToListAsync();
+            
+            Assert.NotEmpty(oldData);
+            Assert.Single(oldData);
+
+            await _service.Delete(new Web.Services.Commands.Entries.DeleteEntry.Command
+            {
+                Id = oldData.First().Id,
+                FolderId = 1
+            });
+
+            var data = await _context.Set<Entry>().ToListAsync();
+
+            Assert.NotNull(data);
+            Assert.Empty(data);
+
+            Assert.Empty(_context.Set<FolderEntryReference>());
+
+            _context.AddRange(oldData);
+            await _context.SaveChangesAsync();
+        }
     }
 }
