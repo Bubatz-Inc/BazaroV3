@@ -1,4 +1,4 @@
-﻿using Bazaro.Web.Models.References;
+using Bazaro.Web.Models.References;
 using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +21,7 @@ namespace Bazaro.Web.Services.Queries.Entries
             var entries = new List<EntryModel>();
             foreach (var item in userFolders)
             {
+                // TOFIX: selects all notes instead of just the notes in the folder
                 entries.AddRange(await context.Set<FolderEntryReference>()
                     .Include(x => x.Entry)
                     .Where(x => x.FolderId == item.FolderId)
