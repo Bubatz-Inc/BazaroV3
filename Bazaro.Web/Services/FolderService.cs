@@ -17,8 +17,9 @@ namespace Bazaro.Web.Services
 
         public Task<FolderModel> GetViewFolderById(GetFolderById.Query request) => GetFolderById.Handle(_context, request);
 
-        public Task Insert(InsertFolder.Command command) => InsertFolder.Handle(_context, command);
+        public Task<FolderModel> GetViewFolderByEntryId(GetFolderByEntryId.Query request) => GetFolderByEntryId.Handle(_context, request);
 
+        public Task Insert(InsertFolder.Command command) => InsertFolder.Handle(_context, command);
         public Task Update(UpdateFolder.Command command) => UpdateFolder.Handle(_context, command);
         public Task Delete(DeleteFolder.Command command) => DeleteFolder.Handle(_context, command);
 
