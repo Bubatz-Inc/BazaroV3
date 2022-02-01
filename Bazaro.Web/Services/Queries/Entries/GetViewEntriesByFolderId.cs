@@ -22,6 +22,7 @@ namespace Bazaro.Web.Services.Queries.Entries
             foreach (var item in userFolders)
             {
                 entries.AddRange(await context.Set<FolderEntryReference>()
+                    .Include(x => x.Entry)
                     .Where(x => x.FolderId == item.FolderId)
                     .Select(x => new EntryModel
                     {

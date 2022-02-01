@@ -55,14 +55,22 @@
     {
         _entryMoveModal = !_entryMoveModal;
         int _selectedEntryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
 
         _selectedEntry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
         {
             Id = _selectedEntryId
         });
 
-        var entryRelations = await entryRelationService.GetReferencesByEntryId(_selectedEntryId);
-        
+        FolderModel folder = await folderService.GetViewFolderByEntryId(new Services.Queries.Folders.GetFolderByEntryId.Query
+        {
+            EntryId = _selectedEntryId,
+            UserId = userId
+        });
+
+        _currentParentFolder = folder.Id;
     }
 
     private RenderFragment LoadTreeSelectModal()

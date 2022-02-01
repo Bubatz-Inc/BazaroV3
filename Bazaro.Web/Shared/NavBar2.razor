@@ -27,11 +27,14 @@
           @RenderFolderTree(_folders)
 
           @* Load Ophan (root level) entries *@
-          @foreach(var entry in _orphanEntries)
+          @if(_orphanEntries is not null)
           {
-            <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
-                <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</MenuItem>  
-            </ContextMenuTrigger>
+            @foreach(var entry in _orphanEntries)
+            {
+                <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
+                    <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</MenuItem>  
+                </ContextMenuTrigger>
+            }   
           }
     </Menu>
 </div>
@@ -49,7 +52,7 @@
     private List<FolderModel> _folders = new();
 
     // Entries of with root folder as parent
-    private List<EntryModel> _orphanEntries = new();
+    private List<EntryModel> _orphanEntries;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -68,6 +71,7 @@
     private async Task RefreshData()
     {
         await LoadFolders();
+        await LoadEntries();
         await LoadOrphanEntries();
     }
 
