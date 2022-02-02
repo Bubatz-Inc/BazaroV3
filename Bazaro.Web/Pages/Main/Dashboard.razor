@@ -1,13 +1,18 @@
 ﻿@page "/dashboard"
+@using Bazaro.Web.Services.ViewModels;
+@using System.Text;
 @inject NavigationManager Nav
 @inject CalendarService calendarService
 @inject ItemService itemService
 
 <h3>Dashboard</h3>
-    <!-- ROW 1 -->
-    <div class="row">
-        <div class="col-6">
+
+<div class="row">
+
+    @* Recently Opened Card *@
+    <div class="col-6">
         <div class="row fullsize">
+
             <div class="col">
                 <Card Class="fullsize" Title="Recently Opened">
                     <Body>
@@ -20,10 +25,10 @@
                             else
                             {
                                 @foreach(var entry in _last5Entries)
-                                    {
-                                            <br/>
-                                            <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</button>
-                                    }
+                                {
+                                        <br/>
+                                        <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</button>
+                                }
                             }
                             }
                             else if(_last5Entries is null)
@@ -34,47 +39,47 @@
                 </Card>
             </div>
         </div>
+    </div>
 
-        </div>
-        <div class="col-6">
-            @* Weeks Events Card *@
-            <Card Title="This weeks's events" Style="height: 50%">
-                    <Body>
-                        <div style="display: inline">
-                            @if(_calendarEntries is not null)
+    @* Weeks Events Card *@
+    <div class="col-6">
+        <Card Title="This weeks's events" Style="height: 50%">
+                <Body>
+                    <div style="display: inline">
+                        @if(_calendarEntries is not null)
+                        {
+                            @if(_calendarEntries.Count == 0)
                             {
-                                @if(_calendarEntries.Count == 0)
+                                <label>No recent Entries...</label>
+                            }
+                            else
+                            {
+                                @foreach(var entry in _calendarEntries)
                                 {
-                                    <label>No recent Entries...</label>
-                                }
-                                else
-                                {
-                                    @foreach(var entry in _calendarEntries)
+                                    @if(entry is not null)
                                     {
-                                        @if(entry is not null)
-                                        {
-                                            <label>- @entry.Entry.Title</label>
-                                        }
+                                        <label>- @entry.Entry.Title</label>
                                     }
                                 }
                             }
-                            else if(_calendarEntries is null)
-                            {
-                                <label>No Events this week!</label>
-                            }
-                        </div>
-                    </Body>
-                </Card>
+                        }
+                        else if(_calendarEntries is null)
+                        {
+                            <label>No Events this week!</label>
+                        }
+                    </div>
+                </Body>
+            </Card>
 
-                @* QuickCard *@
-                <Card Title="Quick note" Style="margin-top: 30px;">
-                    <Body >
-                                <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
-                                <Button @onclick="() => CreateNewQucikNote(quicknoteContent)" Type="@ButtonType.Primary" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
-                    </Body>
-                </Card>
-        </div>
+            @* QuickCard *@
+            <Card Title="Quick note" Style="margin-top: 30px;">
+                <Body >
+                    <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
+                    <Button @onclick="() => CreateNewQuickNote(quicknoteContent)" Type="@ButtonType.Primary" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
+                </Body>
+            </Card>
     </div>
+</div>
 
 <style>
     .fullsize{
@@ -84,3 +89,100 @@
         margin-top:20px; 
     }
 </style>
+
+@code{
+    // Recently opened notes (for card display)
+    private List<EntryModel> _last5Entries;
+
+    // Calendar entries that have a timeframe of the current week (for card display)
+    private List<CalendarEntryModel> _calendarEntries { get; set; } = new();
+
+    // Content of the quicknote card
+    string quicknoteContent = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load5LastNotes();
+        await LoadThisWeeksEvents();
+    }
+
+    // Load Recently opened notes (for card display)
+    private async Task Load5LastNotes()
+    {
+        string userId = await GetCurrentUserId();
+
+        _last5Entries = (await statisticsService.GetRecentlyUpdatedEntries(new Services.Queries.Statistics.GetRecentEntriesByUserId.Query
+        {
+            UserId = userId,
+            MaxCount = 10,
+        }));
+    }
+
+    // Calendar entries that have a timeframe of the current week (for card display)
+    private async Task LoadThisWeeksEvents()
+    {
+        DateTime CurrentDate = DateTime.Now;
+
+        var firstDay = CurrentDate;
+        string userId = await GetCurrentUserId();
+
+        if (userId is null)
+        {
+            return;
+        }
+
+        _calendarEntries = (await calendarService.GetCalendarEntries(new Services.Queries.CalendarEntries.GetCalenderEntriesByUserId.Query
+        {
+            UserId = userId,
+            StartDate = firstDay,
+            EndDate = firstDay.AddDays(7)
+        })).Take(10)
+        .ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task<string> GetCurrentUserId()
+    {
+        var username = httpContext.HttpContext.User.Identity.Name;
+        return (await userManager.FindByNameAsync(username)).Id;
+    }
+
+    // Navigate to specified note
+    private async Task OpenEntry(int entryId)
+    {
+        Nav.NavigateTo($"/noteeditor/{entryId}");
+    }
+
+
+    private async Task CreateNewQuickNote(string content)
+    {
+        var userId = await GetCurrentUserId();
+        string date = DateTime.Now.ToString("yyyy.dd.MM HH:mm");
+
+        string title = "New Quicknote " + date;
+
+        var rootfolder = await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
+        {
+            UserId = userId
+        });
+
+        await entryService.Insert(new Services.Commands.Entries.InsertEntry.Command
+        {
+            FolderId = rootfolder.Id,
+            Title = title,
+        });
+
+        var newEntry = entryService.GetViewEntriesByTitle(new Services.Queries.Entries.GetEntriesByTitle.Query
+        {
+            Title = title
+        });
+
+        await itemService.Insert(new Services.Commands.Items.InsertItem.Command
+        {
+            ContentTypeId = 1,
+            Content = Encoding.UTF8.GetBytes(content),
+            EntryId = newEntry.Id
+        });
+    }
+}
