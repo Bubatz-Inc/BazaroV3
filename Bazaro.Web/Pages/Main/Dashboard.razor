@@ -4,6 +4,7 @@
 @using Blazorise.Markdown
 @using Blazorise.TreeView
 @using Blazorise.Charts
+@inject NavigationManager Nav
 
 <div class="container" style="padding-left: 10%; padding-right: 10%">
 <h3>Dashboard</h3>
@@ -17,14 +18,11 @@
                         <CardTitle Size="5">Recently Opened</CardTitle>
                         <CardText>
                             <br/>
-                            <TreeView Nodes="Items"
-                                      GetChildNodes="@(item => item.Children)"
-                                      HasChildNodes="@(item => item.Children?.Any() == true)"
-                                      @bind-SelectedNode="selectedNode"
-                                      @bind-ExpandedNodes="ExpandedNodes">
-                                <NodeContent>@context.Text</NodeContent>
-                            </TreeView>
-                        </CardText>
+                            @foreach(var entry in _last5Entries)
+                                {
+                                    <button class="btn btn-link"></button>
+                                }
+                            </CardText>
                     </CardBody>
                 </Blazorise.Card>
             </div>
