@@ -1,13 +1,15 @@
 ﻿@page "/calendar"
 @using Bazaro.Web.Services.Commands.CalendarEntries
 @using Bazaro.Web.Services.ViewModels
+@using Blazored.Typeahead
 @inject IHttpContextAccessor http
 @inject CalendarService cs
+@inject EntryService es
 @inherits OwningComponentBase<UserManager<User>>
 
 <h3>Calendar</h3>
 <AntDesign.Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</AntDesign.Button>
-<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" MonthCellRender="MonthCellRender" />
+<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
 
 @*Edit / Add Entry Modal*@
 <Modal Title="@("Title")"
@@ -15,13 +17,88 @@
        OnOk="@HandleOk"
        OnCancel="@HandleCancel"
        ConfirmLoading="@_confirmLoading">
-    <div>
-        @SelectedEntry.StartDate.Date.ToLongDateString()
-    </div>
+    @if(SelectedEntry is not null) {
+        <div>
+            @SelectedEntry.StartDate.Date.ToLongDateString()
+            <div>
+                <BlazoredTypeahead SearchMethod="SearchEntryModels"
+                        TValue="EntryModel"
+                        TItem="EntryModel"
+                        @bind-Value="selectedEntryModel"
+                        placeholder="Select Note...">
+                    <SelectedTemplate Context="entry">
+                        @{
+                            <text>@entry?.Title (Id: @entry?.Id)</text>
+                        }
+                    </SelectedTemplate> 
+                    <ResultTemplate Context="entry">
+                        @entry.Title (Id: @entry.Id)
+                    </ResultTemplate>
+                </BlazoredTypeahead>
+                <div>
+                    <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                </div>
+            </div>
+            @if (EditMode)
+            {
+                <AntDesign.Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</AntDesign.Button>
+            }
+        </div>
+    }
 </Modal>
 
 @code
 {
+    private bool EditMode { get; set; } = false;
+    private DateTime? selectedEntryStartDate { get; set; }
+    private DateTime? selectedEntryEndDate { get; set; }
+
+    private void OnDateChange(DateRangeChangedEventArgs args)
+    {
+        selectedEntryStartDate = args.Dates[0];
+        selectedEntryEndDate = args.Dates[1];
+    }
+
+    private EntryModel selectedEntryModel { get; set; }
+    private List<EntryModel> foundEntryModels { get; set; } = new List<EntryModel>
+    {
+        new EntryModel
+        {
+            Id = 1,
+            Title = "Amogus",
+            Description = "Crazy Description"
+        },
+        new EntryModel
+        {
+            Id = 2,
+            Title = "Whoppy Charge",
+            Description = "Crazy Description"
+        },
+        new EntryModel
+        {
+            Id = 3,
+            Title = "What da Racoon doin",
+            Description = "Crazy Description"
+        } 
+    };
+
+    private async Task SelectedEntryModelChanged(EntryModel em)
+    {
+        selectedEntryModel = em;
+    }
+
+    private async Task<IEnumerable<EntryModel>> SearchEntryModels(string searchText) 
+    {
+        foundEntryModels = (await es.GetViewEntriesByTitle(new Services.Queries.Entries.GetEntriesByTitle.Query
+            {
+                Title = searchText,
+                MaxCount = 25,
+                UserId = await getCurrentUserId()
+            })) ?? foundEntryModels;
+
+        return foundEntryModels;
+    } 
+
     private List<CalendarEntryModel> GetListDataTest(DateTime value)
     {
         List<CalendarEntryModel> listData = null;
@@ -104,7 +181,7 @@
             {
                 UserId = userId,
                 StartDate = firstDay,
-                EndDate = firstDay.AddMonths(1).AddDays(-1)
+                EndDate = firstDay.AddMonths(1)
             });
 
         StateHasChanged();
@@ -113,7 +190,6 @@
     private void OnPanelChange(DateTime value, string mode)
     {
         PanelDate = value;
-        LoadEntries().ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     private async Task<string> getCurrentUserId()
@@ -127,12 +203,18 @@
 
     private void OnEventClick(CalendarEntryModel data)
     {
+        EditMode = true;
         SelectedEntry = data;
+        selectedEntryEndDate = data.EndDate;
+        selectedEntryStartDate = data.StartDate;
+        selectedEntryModel = data.Entry;
         ShowModal();
     }
 
     public void AddEntry()
     {
+        EditMode = false;
+        selectedEntryStartDate = SelectedDate;
         SelectedEntry = new CalendarEntryModel
         {
             StartDate = SelectedDate
@@ -177,10 +259,59 @@
         _visible = true;
     }
 
+    private async Task DeleteEntry()
+    {
+        if (SelectedEntry is null)
+        {
+            return;
+        }
 
-    private void HandleOk(MouseEventArgs e)
+        _confirmLoading = true;
+
+        await cs.DeleteCalendarEntry(new DeleteCalendarEntryById.Command
+            {
+                CalendarEntryId = SelectedEntry.Id
+            });
+
+        await LoadEntries();
+        _confirmLoading = false;
+        SelectedEntry = null;
+        _visible = false;
+    }
+
+    private async Task SaveEntry()
+    {
+        if (selectedEntryStartDate is null) {
+            return;
+        }
+        if (EditMode)
+        {
+            await cs.UpdateCalendarEntry(new UpdateCalendarEntry.Command
+                {
+                    CalendarEntryId = SelectedEntry.Id,
+                    EntryId = selectedEntryModel.Id,
+                    StartDate = (DateTime)selectedEntryStartDate,
+                    EndDate = selectedEntryEndDate
+                });
+        } else
+        {
+            await cs.AddCalendarEntry(new AddCalendarEntry.Command
+            {
+                EntryId = selectedEntryModel.Id,
+                StartDate = (DateTime)selectedEntryStartDate,
+                EndDate = selectedEntryEndDate
+            });   
+        }
+
+        await LoadEntries();
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
+
+        await SaveEntry();
+
         StateHasChanged();
         _visible = false;
         _confirmLoading = false;

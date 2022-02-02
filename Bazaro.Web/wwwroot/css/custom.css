@@ -2,3 +2,11 @@
     min-width: 0px;
     max-width: 500px;
 }
+
+.wrapper .sidebar {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    padding: 20px 0;
+    transition: all 0.5s ease;
+}

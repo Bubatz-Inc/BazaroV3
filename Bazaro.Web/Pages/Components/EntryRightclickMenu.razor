@@ -1,0 +1,135 @@
+﻿<ContextMenu Id="EntryRightClick" class="my-menu"> 
+    <BlazorContextMenu.Item OnClick="@RenameEntryEvent">Rename</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@DeleteEntryEvent">Delete</BlazorContextMenu.Item>
+    <BlazorContextMenu.Item OnClick="@ToggleMoveModal">Move file to...</BlazorContextMenu.Item>
+</ContextMenu>
+
+<Modal Title="Rename Note"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <label>Rename Note</label>
+        <Input @bind-Value="@_entryName"/>
+    </div>
+</Modal>
+@if(_rootFolder is not null && _entryMoveModal && _selectedEntry is not null && _currentParentFolder != null)
+{
+    @LoadTreeSelectModal()
+}
+
+@code {
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public FolderModel _rootFolder { get; set; }
+
+    private bool _entryMoveModal = false;
+    private EntryModel _selectedEntry;
+    private int _currentParentFolder;
+
+    // Modal Parameters
+    bool _visible = false;
+    bool _confirmLoading = false;
+    string _entryName = "";
+    EntryModel _entry = new();
+
+    private async Task DeleteEntryEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+
+        // Send query
+        await entryService.Delete(new DeleteEntry.Command
+            {
+                Id = entryId
+            });
+
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    // Toggles the visibility of the "Moving Folder to..." modal
+    private async Task ToggleMoveModal(ItemClickEventArgs e)
+    {
+        _entryMoveModal = !_entryMoveModal;
+        int _selectedEntryId = Convert.ToInt32(e.ContextMenuTrigger.Id);
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        _selectedEntry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = _selectedEntryId
+        });
+
+        FolderModel folder = await folderService.GetViewFolderByEntryId(new Services.Queries.Folders.GetFolderByEntryId.Query
+        {
+            EntryId = _selectedEntryId,
+            UserId = userId
+        });
+
+        _currentParentFolder = folder.Id;
+    }
+
+    private RenderFragment LoadTreeSelectModal()
+    {
+            return
+    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_entryMoveModal  OnValidSubmit=ReturnCallback isEntry=true _entryToMove=_selectedEntry _oldFolder=_currentParentFolder/>
+    ;
+    }
+
+    private async Task RenameEntryEvent(ItemClickEventArgs e)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        // Get entryID from rightlick
+        int entryId = Convert.ToInt32(e.ContextMenuTrigger.Id); 
+
+        _entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+        {
+            Id = entryId
+        });
+
+        _entryName = _entry.Title;
+        ShowModal();
+    }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        StateHasChanged();
+        _visible = false;
+        _confirmLoading = false;
+
+        // Send query
+        await entryService.Update(new UpdateEntry.Command
+            {
+                Id = _entry.Id,
+                Title = _entryName
+            });
+
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        _visible = false;
+
+         await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task ReturnCallback()
+    {
+        _entryMoveModal = false;
+        await OnValidSubmit.InvokeAsync();
+    }
+}

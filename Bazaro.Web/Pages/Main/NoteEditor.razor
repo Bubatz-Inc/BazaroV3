@@ -1,49 +1,134 @@
-﻿@page "/edit/{noteId}"
+﻿@page "/NoteEditor/{EntryId:int}"
+@using Bazaro.Web.Services
+@using Bazaro.Web.Models
 @using System.Text
+@inject NavigationManager NavManager
+@inject ItemService itemservice
+@inject EntryService entryservice
 
-<h3>Edit Note</h3>
 
-<Markdown Value="@markdownValue" ValueChanged="@OnMarkdownValueChanged" />
-@code{
+<AuthorizeView>
+@if(TextAreaError == 1)
+{
+    <Alert Type="@AlertType.Error"
+       Message="Editor is empty"
+       Description="The Editor must have some Text."
+       ShowIcon="true" 
+       Closable="true"
+       Class=/>
+}
+
+@if(TitleError == 1)
+{
+    <Alert Type="@AlertType.Error"
+       Message="Title is empty"
+       Description="The Title must have a Value."
+       ShowIcon="true" 
+       Closable="true"
+       Class=/>
+}
+
+<h3 class="p-2">Notes</h3>
+<div class="p-2">
+    <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
+</div>
+<div class="p-2">
+    <TextArea Rows="50" @bind-Value=TextAreaValue > </TextArea>
+</div>
+<div class="p-2">
+    <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
+    <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+</div>
+
+
+
+<style>
+    .editor{
+        height: 100%;
+    }
+</style>
+</AuthorizeView>
+
+@code {
+
     [Parameter]
-    public string NoteId { get; set; }
+    public int EntryId { get; set; }
 
+    //bind to this value
+    public string TextAreaValue { get; set; }
+    
+    
+    private EntryModel entry { get; set; }
 
-    string markdownValue = "# EasyMDE \n Go ahead, play around with the editor! Be sure to check out **bold**, *italic*, [links](https://google.com) and all the other features. You can type the Markdown syntax, use the toolbar, or use shortcuts like `ctrl-b` or `cmd-b`.";
-    string markdownHtml;
+    // used to display Error messeages for the inputs
+    public int TitleError { get; set; }
+    public int TextAreaError { get; set; }
 
-    protected override void OnInitialized()
+    private async Task ShowPreview()
     {
-        LoadMarkdownDataFromNoteId(NoteId);
-
-        markdownHtml = Markdig.Markdown.ToHtml( markdownValue ?? string.Empty );
-
-        base.OnInitialized();
+        await Save();
+        if((TextAreaValue != null) && (entry.Title != null))
+            NavManager.NavigateTo("/NotePreview/" + @EntryId);
     }
 
-    Task OnMarkdownValueChanged(string value)
+    public async Task Save()
     {
-        markdownValue = value;
+        if(entry.Title != null)
+        {
+            await entryservice.Update(new Services.Commands.Entries.UpdateEntry.Command
+                {
+                    Description = entry.Description,
+                    Id = entry.Id,
+                    StartItemId = entry.StartItemId,
+                    Title = entry.Title
+                }
+            );
+             TitleError = 0;
+             StateHasChanged();
+        }
+        else
+        {
+            TitleError = 1;
+            StateHasChanged();
+        }
 
-        markdownHtml = Markdig.Markdown.ToHtml( markdownValue ?? string.Empty );
 
-        return Task.CompletedTask;
+        if(TextAreaValue != null)
+        {
+            await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
+                {
+                    ContentTypeId = 1,
+                    Content = Encoding.UTF8.GetBytes(TextAreaValue),
+                    EntryId = EntryId
+                }
+            );
+            TextAreaError = 0;
+            StateHasChanged();
+        }else {
+            TextAreaError = 1;
+            StateHasChanged();
+        }
+        StateHasChanged();
+        ShouldRender();
     }
 
-    private void LoadMarkdownDataFromNoteId(string noteId)
+    protected override async Task OnInitializedAsync()
     {
-        // get byte arr of current note
-    }
 
+        entry = new();
+        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+            {
+                Id = EntryId
+            }
+        );
 
+        if(entry.StartItemId != null)
+        {
+            ItemModel item = new();
+            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+            TextAreaValue = Encoding.UTF8.GetString(item.Content);
+        }
 
-    private string ConvertByteArrayToString(byte[] byteArray)
-    {
-        return Encoding.Default.GetString(byteArray);
-    }
-
-    private byte[] ConvertStringToByteArray(string String)
-    {
-        return Encoding.Default.GetBytes(String);
+        await base.OnInitializedAsync();
     }
 }

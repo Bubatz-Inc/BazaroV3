@@ -16,7 +16,6 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
 
         public static async Task<List<CalendarEntryModel>> Handle(BazaroContext context, Query request)
         {
-            var test = context.Database.CurrentTransaction;
             var res = await context.Set<UserFolderReference>()
                 .Join(context.Set<FolderEntryReference>(),
                     uf => uf.FolderId,
@@ -27,9 +26,10 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
                     ce => ce.EntryId,
                     (x, ce) => new { x.ue, x.uf, ce })
                 .Where(x => x.uf.UserId == request.UserId
-                    && x.ce.StartDate >= request.StartDate && x.ce.EndDate <= request.EndDate)
+                    && x.ce.StartDate >= request.StartDate && x.ce.StartDate <= request.EndDate)
                 .Select(x => new CalendarEntryModel
                 {
+                    Id = x.ce.Id,
                     StartDate = x.ce.StartDate,
                     EndDate = x.ce.EndDate,
                     Entry = new EntryModel

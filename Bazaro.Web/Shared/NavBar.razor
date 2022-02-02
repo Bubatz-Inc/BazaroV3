@@ -1,28 +1,30 @@
 ﻿@inject NavigationManager nav
 
-<Menu Style="width: 58px; height: 100%;"
-      Theme=theme   
-      Class="customsidebar"
-      Mode=@MenuMode.Inline>
-        <MenuItem Key="1" @onclick="@(() => NavToStr("/index"))">
-			<IconTemplate>
-                <Icon Type="radar-chart" Theme="outline"/>
-				<IconFont Type="icon-c-sharp-l" />
-			</IconTemplate>
-		</MenuItem>
-        <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))">
-			<IconTemplate>
-                <Icon Type="home" Theme="outline"></Icon>
-				<IconFont Type="icon-c-sharp-l" />
-			</IconTemplate>
-		</MenuItem>
-        <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))">
-			<IconTemplate>
-                <Icon Type="calendar" Theme="outline"></Icon>
-				<IconFont Type="icon-c-sharp-l" />
-			</IconTemplate>
-		</MenuItem>
-</Menu>
+<div class="wrapper">
+    <Menu Style="width: 58px; height: 100%;"
+          Theme=theme   
+          Mode=@MenuMode.Inline
+          Class="sidebar">
+            <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
+			    <IconTemplate>
+                    <Icon Type="radar-chart" Theme="outline"/>
+				    <IconFont Type="icon-c-sharp-l" />
+			    </IconTemplate>
+		    </MenuItem>
+            <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))">
+			    <IconTemplate>
+                    <Icon Type="home" Theme="outline"></Icon>
+				    <IconFont Type="icon-c-sharp-l" />
+			    </IconTemplate>
+		    </MenuItem>
+            <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))">
+			    <IconTemplate>
+                    <Icon Type="calendar" Theme="outline"></Icon>
+				    <IconFont Type="icon-c-sharp-l" />
+			    </IconTemplate>
+		    </MenuItem>
+    </Menu>
+</div>
 
 @code
 {
