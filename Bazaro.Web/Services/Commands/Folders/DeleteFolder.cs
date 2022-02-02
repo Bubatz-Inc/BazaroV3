@@ -8,17 +8,19 @@ namespace Bazaro.Web.Services.Commands.Folders
         public class Command
         {
             public int Id { get; set; }
-            public string UserId { get; set; }
         }
 
         public static async Task Handle(BazaroContext context, Command request)
         {
-            var data = await context.Set<UserFolderReference>().FirstOrDefaultAsync(x => x.UserId == request.UserId && x.FolderId == request.Id);
+            var data = await context.Set<UserFolderReference>().Where(x => x.FolderId == request.Id).ToListAsync();
 
             if (data == null)
                 return;
 
-            data.IsDeleted = true;
+            foreach (var item in data)
+            {
+                item.IsDeleted = true;
+            }
 
             await context.SaveChangesAsync();
         }

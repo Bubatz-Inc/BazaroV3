@@ -268,7 +268,7 @@
 
         _confirmLoading = true;
 
-        await cs.DeleteCalendarEntry(new DeleteCalendarEntryById.Command
+        await cs.Delete(new DeleteCalendarEntryById.Command
             {
                 CalendarEntryId = SelectedEntry.Id
             });
@@ -286,7 +286,7 @@
         }
         if (EditMode)
         {
-            await cs.UpdateCalendarEntry(new UpdateCalendarEntry.Command
+            await cs.Update(new UpdateCalendarEntry.Command
                 {
                     CalendarEntryId = SelectedEntry.Id,
                     EntryId = selectedEntryModel.Id,
@@ -295,7 +295,7 @@
                 });
         } else
         {
-            await cs.AddCalendarEntry(new AddCalendarEntry.Command
+            await cs.Insert(new InsertCalendarEntry.Command
             {
                 EntryId = selectedEntryModel.Id,
                 StartDate = (DateTime)selectedEntryStartDate,

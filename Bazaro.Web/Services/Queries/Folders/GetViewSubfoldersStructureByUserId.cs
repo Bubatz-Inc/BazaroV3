@@ -30,11 +30,19 @@ namespace Bazaro.Web.Services.Queries.Folders
             var dataList = new List<FolderModel>();
             foreach (var item in rootFolder.Folder.SubFolder)
             {
+                var reference = await context.Set<UserFolderReference>()
+                    .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.FolderId == item.Id);
+
+                if(reference == null)
+                    continue;
+
                 dataList.Add(new FolderModel
                 {
                     Id = item.Id,
                     Description = item.Description,
-                    Title = item.Title
+                    Title = item.Title,
+                    IsDeleted = reference.IsDeleted,
+                    IsShared = reference.IsShared,
                 });
             }
 

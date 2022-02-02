@@ -2,7 +2,7 @@
 
 namespace Bazaro.Web.Services.Commands.CalendarEntries
 {
-    public static class AddCalendarEntry
+    public static class InsertCalendarEntry
     {
         public class Command
         {
