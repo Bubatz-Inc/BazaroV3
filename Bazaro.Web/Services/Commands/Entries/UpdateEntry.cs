@@ -25,9 +25,9 @@ namespace Bazaro.Web.Services.Commands.Entries
             if (data == null)
                 return;
 
-            data.Title = request.Title;
-            data.Description = request.Description;
-            data.StartItemId = request.StartItemId;
+            data.Title = request.Title ?? data.Title;
+            data.Description = request.Description ?? data.Description;
+            data.StartItemId = request.StartItemId ?? data.StartItemId;
             data.Updated = DateTime.Now;
 
             if (request.OldFolderId != request.NewFolderId)

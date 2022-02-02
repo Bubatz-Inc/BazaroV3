@@ -1,0 +1,135 @@
+﻿<Modal 
+
+        Title="@_title"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <div>
+        <TreeSelect TItem="string"
+			Style="width:100%;"
+			@bind-Value="value"
+			Placeholder="Please select"
+			AllowClear
+			TreeDefaultExpandAll>
+            @RenderFolderTree(_rootFolder.SubFolders)
+</TreeSelect>
+    </div>
+</Modal>
+
+@code {
+    [Parameter] public FolderModel _rootFolder { get; set; }
+    [Parameter] public FolderModel _folderToMove { get; set; }
+    [Parameter] public EntryModel _entryToMove { get; set; }
+    [Parameter] public int _oldFolder { get; set; }
+    [Parameter] public EventCallback<int> OnValidSubmit { get; set; }
+    [Parameter] public bool isEntry { get; set; }
+
+    // Tree Parameters
+    private string value;
+
+    // Modal Parameters
+    [Parameter] public bool _visible { get; set; } = false;
+    bool _confirmLoading = false;
+    int _selectedTopFolderId;
+    string _title = "Move to..."; 
+
+    // Render fragment for tree view
+    private RenderFragment RenderFolderTree(List<FolderModel> folders)
+    {
+        return 
+        @<div>
+            @foreach(var folder in folders)
+            {
+                @* Ignore when an entry is moved *@
+                @if(!isEntry)
+                {
+                    @* Ignore folder to move to if its the currently moved folder *@
+                    @if(_folderToMove.Id == folder.Id && folder.SubFolders.Count == 0)
+                    {
+                        continue;
+                    }
+                }
+                <TreeNode TItem="string" Key="@folder.Id.ToString()" Title="@folder.Title">
+                    @if(folder.SubFolders is not null)
+                    {
+                        @RenderFolderTree(folder.SubFolders);
+                    }        
+                </TreeNode>
+            }
+        </div>
+    ;
+    }
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _confirmLoading = true;
+        _visible = false;
+        _confirmLoading = false;
+        string localvalue = value;
+
+        // folder null and _selectedTopFolderId 0
+        _selectedTopFolderId = Convert.ToInt32(value);
+
+        if(isEntry)
+        {
+            await MoveNoteIntoFolderId(_selectedTopFolderId, _oldFolder, _entryToMove.Id);
+        }
+        else
+        {
+            await MoveFolderIntoFolderId(_selectedTopFolderId, _folderToMove.Id);            
+        }
+
+        StateHasChanged();
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private async Task HandleCancel(MouseEventArgs e)
+    {
+        _visible = false;
+
+        // throws cuz 2 db access on one context
+        await OnValidSubmit.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private async Task MoveFolderIntoFolderId(int topFolderId, int subFolderId)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        // GET FOLDER BY ID
+        var _subFolder = await folderService.GetViewFolderById(new Services.Queries.Folders.GetFolderById.Query
+        {
+            Id = subFolderId
+        });
+
+        // Send query
+        await folderService.Update(new UpdateFolder.Command
+            {
+                Id = subFolderId,
+                PreviousFolderId = topFolderId
+            });
+    }
+
+    private async Task MoveNoteIntoFolderId(int newFolderId, int oldFolderId, int entryId)
+    {
+        string userId = (await userManager
+            .FindByNameAsync(httpContext.HttpContext.User.Identity.Name))
+            .Id;
+
+        var entry = await entryService.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+            {
+                Id = entryId
+            });
+
+        // Send query
+        await entryService.Update(new UpdateEntry.Command
+            {
+                Id= entryId,
+                NewFolderId = newFolderId,
+                OldFolderId = oldFolderId
+            });
+    }
+}

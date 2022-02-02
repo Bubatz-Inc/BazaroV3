@@ -20,9 +20,9 @@ namespace Bazaro.Web.Services.Commands.Folders
             if (data == null)
                 return;
 
-            data.Title = request.Title;
-            data.Description = request.Description;
-            data.PreviousFolderId = request.PreviousFolderId;
+            data.Title = request.Title ?? data.Title;
+            data.Description = request.Description ?? data.Description;
+            data.PreviousFolderId = request.PreviousFolderId ?? data.PreviousFolderId;
             data.Updated = DateTime.Now;
 
             await context.SaveChangesAsync();
