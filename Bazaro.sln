@@ -9,9 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EBB23ECB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{D028F7D6-EAFB-4967-B70D-FD7EFA7A481B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Test.Base", "Bazaro.Test.Base\Bazaro.Test.Base.csproj", "{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Test.Base", "Bazaro.Test.Base\Bazaro.Test.Base.csproj", "{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Core.Test", "Bazaro.Core.Test\Bazaro.Core.Test.csproj", "{1EB37242-2D56-400F-BBDA-62670F10D447}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Core.Test", "Bazaro.Core.Test\Bazaro.Core.Test.csproj", "{1EB37242-2D56-400F-BBDA-62670F10D447}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Documentation", "Bazaro.Documentation\Bazaro.Documentation.csproj", "{68904EBF-CE15-4A1C-9059-2C527E79AF81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{1EB37242-2D56-400F-BBDA-62670F10D447}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EB37242-2D56-400F-BBDA-62670F10D447}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EB37242-2D56-400F-BBDA-62670F10D447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
