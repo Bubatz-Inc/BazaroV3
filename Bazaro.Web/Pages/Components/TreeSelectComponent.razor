@@ -1,4 +1,6 @@
-﻿<Modal Title="Move folder to..."
+﻿<Modal 
+
+        Title="@_title"
        Visible="@_visible"
        OnOk="@HandleOk"
        OnCancel="@HandleCancel"
@@ -30,6 +32,7 @@
     [Parameter] public bool _visible { get; set; } = false;
     bool _confirmLoading = false;
     int _selectedTopFolderId;
+    string _title = "Move to..."; 
 
     // Render fragment for tree view
     private RenderFragment RenderFolderTree(List<FolderModel> folders)
@@ -42,7 +45,7 @@
                 @if(!isEntry)
                 {
                     @* Ignore folder to move to if its the currently moved folder *@
-                    @if(_folderToMove.Id == folder.Id)
+                    @if(_folderToMove.Id == folder.Id && folder.SubFolders.Count == 0)
                     {
                         continue;
                     }

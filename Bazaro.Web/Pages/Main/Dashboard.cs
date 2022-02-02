@@ -1,48 +1,11 @@
-﻿using Blazorise.Charts;
+﻿using Bazaro.Web.Services.ViewModels;
+using Blazorise.Charts;
 
 namespace Bazaro.Web.Pages.Main
 {
     public partial class Dashboard
     {
-        // Tree View
-        public class Item
-        {
-            public string Text { get; set; }
-            public IEnumerable<Item> Children { get; set; }
-        }
-
-        private IEnumerable<Item> Items = new[]
-        {
-            new Item { Text = "Folder 1" },
-            new Item {
-            Text = "Folder 2",
-            Children = new []
-            {
-                new Item { Text = "Note 1" },
-                new Item { Text = "Subfolder 1", Children = new []
-                {
-                    new Item { Text = "Note 1" },
-                    new Item { Text = "Note 2" },
-                    new Item { Text = "Note 3" },
-                    new Item { Text = "Note 4" }
-                }
-            },
-                new Item { Text = "Subfolder 2" },
-                new Item { Text = "Subfolder 3" }
-            }
-        },
-            new Item { Text = "Folder 3" },
-            new Item { Text = "Folder 4" },
-            new Item { Text = "Folder 5" },
-            new Item { Text = "Folder 6" },
-            new Item { Text = "Folder 7" },
-            new Item { Text = "Folder 8" },
-        };
-
-        private IList<Item> ExpandedNodes = new List<Item>();
-        private Item selectedNode;
-
-        // Chart
+        List<EntryModel> _last5Entries;
         private LineChart<double> lineChart;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,6 +15,16 @@ namespace Bazaro.Web.Pages.Main
                 await HandleRedraw();
             }
         }
+
+        // Recently Opened
+        private async Task Load5LastNotes()
+        {
+
+            // Load _last5Entries with entryService
+        }
+
+        // Chart
+
 
         private async Task HandleRedraw()
         {
