@@ -37,7 +37,7 @@ else
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 connectionString = connectionString.Replace("{db_pw}", pw);
 builder.Services.AddDbContext<BazaroContext>(options =>
-    options.UseNpgsql(connectionString)
+    options.UseSqlServer(connectionString)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors(), ServiceLifetime.Transient);
     //options.UseInMemoryDatabase("Jonas-der-Spacken"));

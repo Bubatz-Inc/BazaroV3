@@ -47,12 +47,6 @@ namespace Bazaro.Web
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            base.ConfigureConventions(configurationBuilder);
-
-            configurationBuilder.Properties<DateTime>()
-                .HaveColumnType("timestamp without time zone");
-        }
+        
     }
 }
