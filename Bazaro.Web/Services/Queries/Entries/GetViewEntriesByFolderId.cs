@@ -20,7 +20,7 @@ namespace Bazaro.Web.Services.Queries.Entries
                     ufr => ufr.FolderId,
                     fer => fer.FolderId,
                     (ufr, fer) => new { ufr, fer })
-                .Where(x => x.ufr.UserId == request.UserId && x.fer.FolderId == request.FolderId)
+                .Where(x => x.ufr.UserId == request.UserId && x.ufr.FolderId == request.FolderId)
                 .Select(x => x.fer)
                 .ToListAsync();
 
