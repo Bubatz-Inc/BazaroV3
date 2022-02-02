@@ -8,8 +8,8 @@
 @inherits OwningComponentBase<UserManager<User>>
 
 <h3>Calendar</h3>
-<AntDesign.Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</AntDesign.Button>
-<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
+<Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</Button>
+<Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
 
 @*Edit / Add Entry Modal*@
 <Modal Title="@("Title")"
@@ -41,7 +41,7 @@
             </div>
             @if (EditMode)
             {
-                <AntDesign.Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</AntDesign.Button>
+                <Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</Button>
             }
         </div>
     }

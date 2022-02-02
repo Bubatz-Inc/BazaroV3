@@ -24,7 +24,7 @@
                     </div>
                 </MenuItem>
           @* Render Folder Tree structure*@
-          @if(_folders.Count == 0 || _folders is null)
+          @if(_folders.Count == 0 && _orphanEntries == null)
             {
                 <MenuItem>
                     <div class="container">

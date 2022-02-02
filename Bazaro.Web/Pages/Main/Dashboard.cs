@@ -1,7 +1,4 @@
-﻿using Bazaro.Web.Models;
-using Bazaro.Web.Services;
-using Bazaro.Web.Services.ViewModels;
-using Blazorise.Charts;
+﻿using Bazaro.Web.Services.ViewModels;
 using System.Text;
 
 namespace Bazaro.Web.Pages.Main

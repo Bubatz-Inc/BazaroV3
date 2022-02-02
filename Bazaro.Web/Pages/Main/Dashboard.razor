@@ -1,9 +1,4 @@
 ﻿@page "/dashboard"
-@using Blazorise
-@using Blazorise.Sidebar
-@using Blazorise.Markdown
-@using Blazorise.TreeView
-@using Blazorise.Charts
 @inject NavigationManager Nav
 @inject CalendarService calendarService
 @inject ItemService itemService
@@ -15,10 +10,8 @@
         <div class="col-6">
         <div class="row fullsize">
             <div class="col">
-                <Blazorise.Card Margin="Margin.Is4.OnY" Class="fullsize">
-                    <CardBody>
-                        <CardTitle Size="5">Recently Opened</CardTitle>
-                        <CardText>
+                <Card Margin="Margin.Is4.OnY" Class="fullsize" Title="Recently Opened">
+                    <Body>
                             @if(_last5Entries is not null)
                                 {
                                     @foreach(var entry in _last5Entries)
@@ -27,18 +20,15 @@
                                         <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">@entry.Title</button>
                                     }
                                 }
-                            </CardText>
-                    </CardBody>
-                </Blazorise.Card>
+                    </Body>
+                </Card>
             </div>
         </div>
 
         </div>
         <div class="col-6">
-            <Blazorise.Card Margin="Margin.Is4.OnY">
-                    <CardBody>
-                        <CardTitle Size="5">This weeks's events</CardTitle>
-                        <CardText>
+            <Card Margin="Margin.Is4.OnY" Title="This weeks's events">
+                    <Body>
                         <div  style="display: inline">
 
                             @if(_calendarEntries is not null)
@@ -52,18 +42,14 @@
                                 }
                             }
                             </div>
-                        </CardText>
-                    </CardBody>
-                </Blazorise.Card>
-                <Blazorise.Card Margin="Margin.Is4.OnY">
-                    <CardBody Class="fullsize">
-                        <CardTitle Size="5">Quick note</CardTitle>
-                        <CardText>
+                    </Body>
+                </Card>
+                <Card Margin="Margin.Is4.OnY" Title="Quick note">
+                    <Body >
                                 <TextArea Rows="4" @bind-Value="@quicknoteContent" />
                                 <Blazorise.Button @onclick="() => CreateNewQucikNote(quicknoteContent)" Color="Blazorise.Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Blazorise.Button>
-                        </CardText>
-                    </CardBody>
-                </Blazorise.Card>
+                    </Body>
+                </Card>
         </div>
     </div>
 </div>

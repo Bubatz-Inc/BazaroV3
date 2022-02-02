@@ -2,9 +2,6 @@ using Bazaro.Web;
 using Bazaro.Web.Areas.Identity;
 using Bazaro.Web.Models;
 using Bazaro.Web.Services;
-using Blazorise;
-using Blazorise.Bootstrap5;
-using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,14 +55,6 @@ builder.Services.AddScoped<ContentTypeSevice>();
 
 builder.Services.AddAntDesign();
 builder.Services.AddBlazorContextMenu();
-
-builder.Services
-    .AddBlazorise(options =>
-    {
-        options.ChangeTextOnKeyPress = true; // optional
-    })
-    .AddBootstrap5Providers()
-    .AddFontAwesomeIcons();
 
 var app = builder.Build();
 
