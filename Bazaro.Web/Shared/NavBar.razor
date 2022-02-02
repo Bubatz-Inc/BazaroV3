@@ -5,11 +5,25 @@
           Theme=theme   
           Mode=@MenuMode.Inline
           Class="sidebar">
-            <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
-			    <Image Preview=false Src="/icon-lg.png" Alt="icon.png" />
-		    </MenuItem>
-            <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))" Icon="home" />
-            <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))" Icon="calendar"/>
+          <AuthorizeView>
+             <Authorized>
+                 @* AUTHORIZED *@
+                <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
+			        <Image Preview=false Src="/icon-lg.png" Alt="icon.png" />
+		        </MenuItem>
+                <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))" Icon="home"/>
+                <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))" Icon="calendar"/>
+            </Authorized>
+                <NotAuthorized>
+                    @* UNAUTHORIZED *@
+                    <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
+			            <Image Preview=false Src="/icon-lg.png" Alt="icon.png" />
+		            </MenuItem>
+                    <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))" Icon="home" Disabled=true/>
+                    <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))" Icon="calendar" Disabled=true/>
+                </NotAuthorized>
+            </AuthorizeView>
+
     </Menu>
 </div>
 

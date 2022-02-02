@@ -6,6 +6,7 @@
 @inject EntryService entryservice
 
 <AuthorizeView>
+    <Authorized>
 <div class="p-2">
     @if(entry != null)
     {
@@ -22,7 +23,12 @@
         height: 100%;
     } 
 </style>
+    </Authorized>
+    <NotAuthorized>
+        <a>Unauthorized to view this page.</a>
+    </NotAuthorized>
 </AuthorizeView>
+
 @code {
     [Parameter]
     public int EntryId { get; set; }

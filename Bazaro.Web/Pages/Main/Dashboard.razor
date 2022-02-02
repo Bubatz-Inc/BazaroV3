@@ -3,7 +3,6 @@
 @inject CalendarService calendarService
 @inject ItemService itemService
 
-<div class="container" style="padding-left: 10%; padding-right: 10%;">
 <h3>Dashboard</h3>
     <!-- ROW 1 -->
     <div class="row">
@@ -14,17 +13,20 @@
                     <Body>
                             @if(_last5Entries is not null)
                             {
+                            @if(_last5Entries.Count == 0)
+                            {
+                                <label>Nothing to display...</label>
+                            }
+                            else
+                            {
                                 @foreach(var entry in _last5Entries)
-                                {
-                                        <br/>
-                                        <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">@entry.Title</button>
-                                }
+                                    {
+                                            <br/>
+                                            <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</button>
+                                    }
+                            }
                             }
                             else if(_last5Entries is null)
-                            {
-                                <label>NULL</label>
-                            }
-                            else if(_last5Entries.Count == 0)
                             {
                                 <label>Nothing to display...</label>
                             }
@@ -38,23 +40,29 @@
             @* Weeks Events Card *@
             <Card Title="This weeks's events" Style="height: 50%">
                     <Body>
-                        <div  style="display: inline">
-
+                        <div style="display: inline">
                             @if(_calendarEntries is not null)
                             {
-                                @foreach(var entry in _calendarEntries)
+                                @if(_calendarEntries.Count == 0)
                                 {
-                                    @if(entry is not null)
+                                    <label>No recent Entries...</label>
+                                }
+                                else
+                                {
+                                    @foreach(var entry in _calendarEntries)
                                     {
-                                        <label>- @entry.Entry.Title</label>
+                                        @if(entry is not null)
+                                        {
+                                            <label>- @entry.Entry.Title</label>
+                                        }
                                     }
                                 }
                             }
                             else if(_calendarEntries is null)
                             {
-                                <label>Nothing to display...</label>
+                                <label>No Events this week!</label>
                             }
-                            </div>
+                        </div>
                     </Body>
                 </Card>
 
@@ -67,13 +75,12 @@
                 </Card>
         </div>
     </div>
-</div>
-
-
 
 <style>
     .fullsize{
         height: 100%
     }
-    .top-buffer { margin-top:20px; }
+    .top-buffer { 
+        margin-top:20px; 
+    }
 </style>
