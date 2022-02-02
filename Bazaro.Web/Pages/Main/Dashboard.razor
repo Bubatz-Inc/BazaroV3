@@ -59,8 +59,8 @@
                     <CardBody Class="fullsize">
                         <CardTitle Size="5">Quick note</CardTitle>
                         <CardText>
-                                <MemoEdit Rows="3"/>
-                                <Blazorise.Button Color="Blazorise.Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Blazorise.Button>
+                                <TextArea Rows="4" @bind-Value="@quicknoteContent" />
+                                <Blazorise.Button @onclick="() => CreateNewQucikNote(quicknoteContent)" Color="Blazorise.Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Blazorise.Button>
                         </CardText>
                     </CardBody>
                 </Blazorise.Card>

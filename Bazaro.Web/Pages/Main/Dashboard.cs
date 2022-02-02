@@ -9,6 +9,7 @@ namespace Bazaro.Web.Pages.Main
     public partial class Dashboard
     {
         List<EntryModel> _last5Entries;
+        string quicknoteContent = "";
 
         protected override async Task OnInitializedAsync()
         {
@@ -28,12 +29,13 @@ namespace Bazaro.Web.Pages.Main
             }));
         }
 
+        // Variables
         private List<CalendarEntryModel> _calendarEntries { get; set; } = new();
-        private DateTime PanelDate = DateTime.Now;
+        private DateTime CurrentDate = DateTime.Now;
 
         private async Task LoadThisWeeksEvents()
         {
-            var firstDay = new DateTime(PanelDate.Year, PanelDate.Month, 1);
+            var firstDay = CurrentDate;
             string userId = await GetCurrentUserId();
             if (userId is null) return;
             _calendarEntries = (await calendarService.GetCalendarEntries(new Services.Queries.CalendarEntries.GetCalenderEntriesByUserId.Query
@@ -61,6 +63,9 @@ namespace Bazaro.Web.Pages.Main
         private async Task CreateNewQucikNote(string content)
         {
             var userId = await GetCurrentUserId();
+            string date = DateTime.Now.ToString("yyyy.dd.MM HH:mm");
+
+            string title = "New Quicknote " + date;
 
             var rootfolder = await folderService.GetViewFolderStructureByUserId(new Services.Queries.Folders.GetViewSubfoldersStructureByUserId.Query
             {
@@ -70,17 +75,20 @@ namespace Bazaro.Web.Pages.Main
             await entryService.Insert(new Services.Commands.Entries.InsertEntry.Command
             {
                 FolderId = rootfolder.Id,
-                Title = "New Quicknote " + DateOnly.FromDateTime(DateTime.Now),
+                Title = title,
             });
 
-            //await itemService.Insert(new Services.Commands.Items.InsertItem.Command
-            //{
-            //    ContentTypeId = 1,
-            //    Content = Encoding.UTF8.GetBytes(TextAreaValue),
-            //    EntryId = EntryId
-            //}
-            //); 
-        
+            var newEntry = entryService.GetViewEntriesByTitle(new Services.Queries.Entries.GetEntriesByTitle.Query
+            {
+                Title = title
+            });
+
+            await itemService.Insert(new Services.Commands.Items.InsertItem.Command
+            {
+                ContentTypeId = 1,
+                Content = Encoding.UTF8.GetBytes(content),
+                EntryId = newEntry.Id
+            });
         }
     }
 }
