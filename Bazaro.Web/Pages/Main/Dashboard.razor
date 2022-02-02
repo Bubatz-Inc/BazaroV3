@@ -6,6 +6,7 @@
 @using Blazorise.Charts
 @inject NavigationManager Nav
 @inject CalendarService calendarService
+@inject ItemService itemService
 
 <div class="container" style="padding-left: 10%; padding-right: 10%">
 <h3>Dashboard</h3>
@@ -18,11 +19,14 @@
                     <CardBody>
                         <CardTitle Size="5">Recently Opened</CardTitle>
                         <CardText>
-                            <br/>
-@*                            @foreach(var entry in _last5Entries)
+                            @if(_last5Entries is not null)
                                 {
-                                    <button class="btn btn-link">@entry.Title</button>
-                                }*@
+                                    @foreach(var entry in _last5Entries)
+                                    {
+                                        <br/>
+                                        <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">@entry.Title</button>
+                                    }
+                                }
                             </CardText>
                     </CardBody>
                 </Blazorise.Card>
@@ -62,31 +66,8 @@
                 </Blazorise.Card>
         </div>
     </div>
-
-    <!-- ROW 2 -->
-    <div class="row top-buffer" >
-        <div class="col-lg-12">
-                <Blazorise.Card Margin="Margin.Is4.OnY">
-                    <CardBody>
-                        <CardTitle Size="5">Statistics</CardTitle>
-                        <CardText>
-                            
-                        </CardText>
-                    </CardBody>
-                </Blazorise.Card>        
-        </div>
-    </div>
-
-    <!-- ROW 3 -->
-    <div class="row">
-        <div class="col">
-            <!--div style="background-color: blueviolet; padding: 10px; border: 1px solid green;"/-->
-        </div>
-        <div class="col">
-            <!--div style="background-color: blueviolet; padding: 10px; border: 1px solid green;"/-->
-        </div>
-    </div>
 </div>
+
 
 
 <style>
