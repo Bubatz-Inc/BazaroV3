@@ -3,31 +3,40 @@
 @inject CalendarService calendarService
 @inject ItemService itemService
 
-<div class="container" style="padding-left: 10%; padding-right: 10%">
+<div class="container" style="padding-left: 10%; padding-right: 10%;">
 <h3>Dashboard</h3>
     <!-- ROW 1 -->
     <div class="row">
         <div class="col-6">
         <div class="row fullsize">
             <div class="col">
-                <Card Margin="Margin.Is4.OnY" Class="fullsize" Title="Recently Opened">
+                <Card Class="fullsize" Title="Recently Opened">
                     <Body>
                             @if(_last5Entries is not null)
+                            {
+                                @foreach(var entry in _last5Entries)
                                 {
-                                    @foreach(var entry in _last5Entries)
-                                    {
                                         <br/>
                                         <button class="btn btn-link" @onclick="() => OpenEntry(entry.Id)">@entry.Title</button>
-                                    }
                                 }
-                    </Body>
+                            }
+                            else if(_last5Entries is null)
+                            {
+                                <label>NULL</label>
+                            }
+                            else if(_last5Entries.Count == 0)
+                            {
+                                <label>Nothing to display...</label>
+                            }
+                        </Body>
                 </Card>
             </div>
         </div>
 
         </div>
         <div class="col-6">
-            <Card Margin="Margin.Is4.OnY" Title="This weeks's events">
+            @* Weeks Events Card *@
+            <Card Title="This weeks's events" Style="height: 50%">
                     <Body>
                         <div  style="display: inline">
 
@@ -37,17 +46,23 @@
                                 {
                                     @if(entry is not null)
                                     {
-                                        <Label>- @entry.Entry.Title</Label>
+                                        <label>- @entry.Entry.Title</label>
                                     }
                                 }
+                            }
+                            else if(_calendarEntries is null)
+                            {
+                                <label>Nothing to display...</label>
                             }
                             </div>
                     </Body>
                 </Card>
-                <Card Margin="Margin.Is4.OnY" Title="Quick note">
+
+                @* QuickCard *@
+                <Card Title="Quick note" Style="margin-top: 30px;">
                     <Body >
-                                <TextArea Rows="4" @bind-Value="@quicknoteContent" />
-                                <Blazorise.Button @onclick="() => CreateNewQucikNote(quicknoteContent)" Color="Blazorise.Color.Success" Style="float: right; margin-top: 5px">Add to Quicknotes</Blazorise.Button>
+                                <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
+                                <Button @onclick="() => CreateNewQucikNote(quicknoteContent)" Type="@ButtonType.Primary" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
                     </Body>
                 </Card>
         </div>

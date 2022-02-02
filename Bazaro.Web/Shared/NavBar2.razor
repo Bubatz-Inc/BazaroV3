@@ -8,21 +8,25 @@
 
 <div class="wrapper">
     <Menu Style="width: 256px; height: 100%; margin-left: 58px;"
-          class="sidebar"
+          Class="sidebar"
           Theme=theme
           Mode=@MenuMode.Inline>
-                <MenuItem>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col">
-                                <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
-                            </div>
-                            <div class="col">
-                                <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
-                            </div>
-                        </div>
+          <MenuItem Disabled=true>
+            <h4 style="color: white;">Workspace</h4>
+          </MenuItem>
+          <MenuDivider/>
+          <MenuItem>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
                     </div>
-                </MenuItem>
+                    <div class="col">
+                        <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
+                    </div>
+                </div>
+            </div>
+            </MenuItem>
           @* Render Folder Tree structure*@
           @if(_folders.Count == 0 && _orphanEntries == null)
             {
