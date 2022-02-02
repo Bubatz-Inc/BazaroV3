@@ -15,16 +15,29 @@
                     <div class="container">
                         <div class="row">
                             <div class="col">
-                                <Button Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
+                                <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
                             </div>
                             <div class="col">
-                                <Button Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
+                                <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
                             </div>
                         </div>
                     </div>
                 </MenuItem>
           @* Render Folder Tree structure*@
-          @RenderFolderTree(_folders)
+          @if(_folders.Count == 0 || _folders is null)
+            {
+                <MenuItem>
+                    <div class="container">
+                        <div class="row">
+                                <Icon Type="loading" Theme="outline"/>
+                        </div>
+                    </div>
+                </MenuItem>
+            }
+            else
+            {
+                @RenderFolderTree(_folders)
+            }
 
           @* Load Ophan (root level) entries *@
           @if(_orphanEntries is not null)
@@ -71,7 +84,7 @@
     private async Task RefreshData()
     {
         await LoadFolders();
-        await LoadEntries();
+        _folders = await LoadEntries(_folders);
         await LoadOrphanEntries();
     }
 
@@ -119,14 +132,19 @@
     }
 
     // Loads Entries into folders to be displayed in the sidebar
-    private async Task LoadEntries()
+    private async Task<List<FolderModel>> LoadEntries(List<FolderModel> folders)
     {
-        List<FolderModel> localFolders = _folders;
+        List<FolderModel> localFolders = folders;
 
         var userId = await GetCurrentUserId();
 
-        foreach(var folder in _folders)
+        foreach(var folder in folders)
         {
+            if(folder.SubFolders is not null)
+            {
+                folder.SubFolders = await LoadEntries(folder.SubFolders);
+            }
+
             List<EntryModel> folderEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
                 {
                     FolderId = folder.Id,
@@ -137,7 +155,7 @@
             updatedFolder.Entries = folderEntries;
         }
 
-        _folders = localFolders;
+        return localFolders;
     }
 
     // Load entries that do not have a folder

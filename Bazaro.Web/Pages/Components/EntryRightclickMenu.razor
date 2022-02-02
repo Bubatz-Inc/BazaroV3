@@ -107,8 +107,6 @@
     {
         _confirmLoading = true;
         StateHasChanged();
-        _visible = false;
-        _confirmLoading = false;
 
         // Send query
         await entryService.Update(new UpdateEntry.Command
@@ -118,6 +116,8 @@
             });
 
         await OnValidSubmit.InvokeAsync();
+        _visible = false;
+        _confirmLoading = false;
     }
 
     private async Task HandleCancel(MouseEventArgs e)

@@ -5,6 +5,7 @@
 @using Blazorise.TreeView
 @using Blazorise.Charts
 @inject NavigationManager Nav
+@inject CalendarService calendarService
 
 <div class="container" style="padding-left: 10%; padding-right: 10%">
 <h3>Dashboard</h3>
@@ -18,10 +19,10 @@
                         <CardTitle Size="5">Recently Opened</CardTitle>
                         <CardText>
                             <br/>
-                            @foreach(var entry in _last5Entries)
+@*                            @foreach(var entry in _last5Entries)
                                 {
-                                    <button class="btn btn-link"></button>
-                                }
+                                    <button class="btn btn-link">@entry.Title</button>
+                                }*@
                             </CardText>
                     </CardBody>
                 </Blazorise.Card>
@@ -32,13 +33,20 @@
         <div class="col-6">
             <Blazorise.Card Margin="Margin.Is4.OnY">
                     <CardBody>
-                        <CardTitle Size="5">Today's events</CardTitle>
+                        <CardTitle Size="5">This weeks's events</CardTitle>
                         <CardText>
-                            <div  style="display: inline">
-                                <label>- Meet with Mr. McDonald to discuss bigmac prices</label><br/>
-                                <label>- Do homework</label><br/>
-                                <label>- Bubatz durchziehen</label><br/>
-                                <label>- Go to sleep at 10PM</label><br/>
+                        <div  style="display: inline">
+
+                            @if(_calendarEntries is not null)
+                            {
+                                @foreach(var entry in _calendarEntries)
+                                {
+                                    @if(entry is not null)
+                                    {
+                                        <Label>- @entry.Entry.Title</Label>
+                                    }
+                                }
+                            }
                             </div>
                         </CardText>
                     </CardBody>
@@ -62,8 +70,7 @@
                     <CardBody>
                         <CardTitle Size="5">Statistics</CardTitle>
                         <CardText>
-                            <Blazorise.Button Clicked="@(async () => await HandleRedraw())">Redraw</Blazorise.Button>
-                            <LineChart @ref="lineChart" TItem="double" />
+                            
                         </CardText>
                     </CardBody>
                 </Blazorise.Card>        

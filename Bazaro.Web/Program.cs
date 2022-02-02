@@ -7,7 +7,6 @@ using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +39,6 @@ builder.Services.AddDbContext<BazaroContext>(options =>
     options.UseNpgsql(connectionString)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors(), ServiceLifetime.Transient);
-    //options.UseInMemoryDatabase("Jonas-der-Spacken"));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)

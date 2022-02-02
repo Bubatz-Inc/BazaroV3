@@ -6,14 +6,10 @@ namespace Bazaro.Web.Pages.Main
     public partial class Dashboard
     {
         List<EntryModel> _last5Entries;
-        private LineChart<double> lineChart;
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnInitializedAsync()
         {
-            if (firstRender)
-            {
-                await HandleRedraw();
-            }
+            await LoadThisWeeksEvents();
         }
 
         // Recently Opened
@@ -23,39 +19,25 @@ namespace Bazaro.Web.Pages.Main
             // Load _last5Entries with entryService
         }
 
-        // Chart
+        private List<CalendarEntryModel> _calendarEntries { get; set; } = new();
+        private DateTime PanelDate = DateTime.Now;
 
-
-        private async Task HandleRedraw()
+        private async Task LoadThisWeeksEvents()
         {
-            await lineChart.Clear();
-
-            await lineChart.AddLabelsDatasetsAndUpdate(Labels, GetLineChartDataset());
-        }
-
-        private LineChartDataset<double> GetLineChartDataset()
-        {
-            return new LineChartDataset<double>
+            var firstDay = new DateTime(PanelDate.Year, PanelDate.Month, 1);
+            var username = httpContext.HttpContext.User.Identity.Name;
+            string userId = (await userManager.FindByNameAsync(username)).Id;
+            if (userId is null) return;
+            _calendarEntries = (await calendarService.GetCalendarEntries(new Services.Queries.CalendarEntries.GetCalenderEntriesByUserId.Query
             {
-                Label = "# of Notes",
-                Data = RandomizeData(),
-                BackgroundColor = backgroundColors,
-                BorderColor = borderColors,
-                Fill = true,
-                PointRadius = 2,
-                BorderDash = new List<int> { }
-            };
+                UserId = userId,
+                StartDate = firstDay,
+                EndDate = firstDay.AddDays(7)
+            })).Take(10)
+            .ToList();
+
+            StateHasChanged();
         }
 
-        private string[] Labels = { "June", "Juli", "September", "Oktober", "November", "December" };
-        private List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-        private List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
-
-        private List<double> RandomizeData()
-        {
-            var r = new Random(DateTime.Now.Millisecond);
-
-            return new List<double> { r.Next(3, 50) * r.NextDouble(), r.Next(3, 50) * r.NextDouble(), r.Next(3, 50) * r.NextDouble(), r.Next(3, 50) * r.NextDouble(), r.Next(3, 50) * r.NextDouble(), r.Next(3, 50) * r.NextDouble() };
-        }
     }
 }
