@@ -11,11 +11,10 @@
         <div >
             @if(entry != null)
             {
-        
                 <h1>@entry.Title</h1>
             }  
         </div>
-        <div  id="editor">
+        <div class="p-5" id="editor">
             @((MarkupString)markdownHtml)
         </div>
         <div >
@@ -34,34 +33,72 @@
 </AuthorizeView>
 
 @code {
+    class TextItem
+    {
+        public int? ItemId;
+        public string Content;
+    }
+
+    private List<TextItem> Items { get; set; } = new();
+
     [Parameter]
     public int EntryId { get; set; }
 
     private string markdownHtml;
     private EntryModel entry { get; set; }
 
+    private void AddTextItem(ItemModel i)
+    {
+        Items.Add(new TextItem
+            {
+                ItemId = i.Id,
+                Content = Encoding.UTF8.GetString(i.Content)
+            });
+    }
+
+    private async Task LoadEntry()
+    {
+        // load the entry
+        entry = new();
+        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
+            {
+                Id = EntryId
+            }
+        );
+        // load the first item
+        Items = new();
+        ItemModel lastItem = null;
+        if(entry.StartItemId != null)
+        {
+            ItemModel firstItem = new();
+            firstItem = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+            AddTextItem(firstItem);
+            lastItem = firstItem;
+        }
+
+        while (lastItem?.NextItem != null)
+        {
+            AddTextItem(lastItem.NextItem);
+            lastItem = lastItem.NextItem;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await LoadEntry();
+
+        foreach (var item in Items)
+        {
+            string markdownText = item.Content;
+            markdownHtml += Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
+            markdownHtml += " <hr/> ";
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-
-        entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
-        {
-            Id = EntryId
-        }
-        );
-        if(entry != null)
-        {
-            ItemModel item = new();
-            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-            if(item.ContentType.Id == 1)
-            {
-                if(item.Content != null)
-                {
-                    string markdownText = Encoding.UTF8.GetString(item.Content);
-                    markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
-                }
-
-            }
-        }
+        markdownHtml = "";
         await base.OnInitializedAsync();
     }
 

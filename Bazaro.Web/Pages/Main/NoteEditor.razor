@@ -29,26 +29,37 @@
             />
         }
 
-        <h3 class="p-2">Notes</h3>
-        <div class="p-2">
-            <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
-        </div>
-        <div class="p-2">
-            <TextArea Rows="50" @bind-Value=TextAreaValue > </TextArea>
-        </div>
-        <div class="p-2">
-            <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
-            <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
-        </div>
         @if(Saved == true)
         {
             <Alert Type="@AlertType.Success"
                Message="Saved"
                ShowIcon="true" 
                Closable="true"
+               AfterClose="() => Saved = false"
                />
         }
-    </Authorized>
+
+<h3 class="p-2">Notes</h3>
+<div class="p-2">
+    <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
+</div>
+        @foreach(var item in Items)
+        {
+            <div class="p-2">
+                <TextArea MinRows="4" @bind-Value=item.Content > </TextArea>
+            </div>
+        }
+<div class="p-2">
+    <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
+    <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+    <Button Type="@ButtonType.Primary" @onclick="() => {
+        Items.Add(new TextItem{ Content = String.Empty });
+        StateHasChanged();
+    }" >Add Item</Button>
+
+</div>
+
+</Authorized>
     <NotAuthorized>
         <a>Unauthorized to view this page.</a>
     </NotAuthorized>
@@ -62,13 +73,18 @@
 
 @code {
 
+    class TextItem
+    {
+        public int? ItemId;
+        public string Content;
+    }
+
     [Parameter]
     public int EntryId { get; set; }
 
-    //bind to this value
-    public string TextAreaValue { get; set; }
-
     private EntryModel entry { get; set; }
+
+    private List<TextItem> Items { get; set; } = new();
 
     // used to display Error messeages for the inputs
     private int TitleError { get; set; }
@@ -78,7 +94,7 @@
     private async Task ShowPreview()
     {
         await Save();
-        if((TextAreaValue != null) && (entry.Title != null))
+        if(entry.Title != null)
             NavManager.NavigateTo("/NotePreview/" + @EntryId);
     }
 
@@ -102,20 +118,30 @@
             TitleError = 1;
         }
 
-        if(TextAreaValue != null)
+        foreach (var item in Items)
         {
-            await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
-                {
-                    ContentTypeId = 1,
-                    Content = Encoding.UTF8.GetBytes(TextAreaValue),
-                    EntryId = EntryId
-                }
-            );
-            Saved = true;
-            TextAreaError = 0;
-        }else {
-            TextAreaError = 1;
+            if (item.Content is null) continue;
+
+            if (item.ItemId is null)
+            {
+                await itemservice.Insert(new Services.Commands.Items.InsertItem.Command
+                    {
+                        ContentTypeId = 1,
+                        Content = Encoding.UTF8.GetBytes(item.Content),
+                        EntryId = EntryId
+                    }
+                );
+            } else
+            {
+                await itemservice.Update(new Services.Commands.Items.UpdateItem.Command
+                    {
+                        Content = Encoding.UTF8.GetBytes(item.Content),
+                        ContentTypeId = 1,
+                        Id = (int)item.ItemId
+                    });
+            }
         }
+        Saved = true;
         StateHasChanged();
         ShouldRender();
     }
@@ -126,22 +152,39 @@
         await LoadEntry();
     }
 
+    private void AddTextItem(ItemModel i)
+    {
+        Items.Add(new TextItem
+            {
+                ItemId = i.Id,
+                Content = Encoding.UTF8.GetString(i.Content)
+            });
+    }
+
     private async Task LoadEntry()
     {
+        // load the entry
         entry = new();
         entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
             {
                 Id = EntryId
             }
         );
-
-        TextAreaValue = "";
-
+        // load the first item
+        Items = new();
+        ItemModel lastItem = null;
         if(entry.StartItemId != null)
         {
-            ItemModel item = new();
-            item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-            TextAreaValue = Encoding.UTF8.GetString(item.Content);
+            ItemModel firstItem = new();
+            firstItem = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
+            AddTextItem(firstItem);
+            lastItem = firstItem;
+        }
+
+        while (lastItem?.NextItem != null)
+        {
+            AddTextItem(lastItem.NextItem);
+            lastItem = lastItem.NextItem;
         }
     }
 
