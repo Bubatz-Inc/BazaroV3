@@ -9,39 +9,46 @@
 
 <AuthorizeView>
     <Authorized>
-@if(TextAreaError == 1)
-{
-    <Alert Type="@AlertType.Error"
-       Message="Editor is empty"
-       Description="The Editor must have some Text."
-       ShowIcon="true" 
-       Closable="true"
-       Class=/>
-}
+        @if(TextAreaError == 1)
+        {
+            <Alert Type="@AlertType.Error"
+               Message="Editor is empty"
+               Description="The Editor must have some Text."
+               ShowIcon="true" 
+               Closable="true"
+               />
+        }
 
-@if(TitleError == 1)
-{
-    <Alert Type="@AlertType.Error"
-       Message="Title is empty"
-       Description="The Title must have a Value."
-       ShowIcon="true" 
-       Closable="true"
-       Class=/>
-}
+        @if(TitleError == 1)
+        {
+            <Alert Type="@AlertType.Error"
+               Message="Title is empty"
+               Description="The Title must have a Value."
+               ShowIcon="true" 
+               Closable="true"
+            />
+        }
 
-<h3 class="p-2">Notes</h3>
-<div class="p-2">
-    <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
-</div>
-<div class="p-2">
-    <TextArea Rows="50" @bind-Value=TextAreaValue > </TextArea>
-</div>
-<div class="p-2">
-    <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
-    <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
-</div>
-
-</Authorized>
+        <h3 class="p-2">Notes</h3>
+        <div class="p-2">
+            <Input type="Text" class="editor container-fluid" @bind-Value=entry.Title></Input>
+        </div>
+        <div class="p-2">
+            <TextArea Rows="50" @bind-Value=TextAreaValue > </TextArea>
+        </div>
+        <div class="p-2">
+            <Button Type="@ButtonType.Primary" @onclick="() => ShowPreview()" >Show Preview!</Button>
+            <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
+        </div>
+        @if(Saved == true)
+        {
+            <Alert Type="@AlertType.Success"
+               Message="Saved"
+               ShowIcon="true" 
+               Closable="true"
+               />
+        }
+    </Authorized>
     <NotAuthorized>
         <a>Unauthorized to view this page.</a>
     </NotAuthorized>
@@ -60,13 +67,14 @@
 
     //bind to this value
     public string TextAreaValue { get; set; }
-    
-    
+
+
     private EntryModel entry { get; set; }
 
     // used to display Error messeages for the inputs
-    public int TitleError { get; set; }
-    public int TextAreaError { get; set; }
+    private int TitleError { get; set; }
+    private int TextAreaError { get; set; }
+    private bool Saved {  get;  set; }
 
     private async Task ShowPreview()
     {
@@ -87,15 +95,13 @@
                     Title = entry.Title
                 }
             );
-             TitleError = 0;
-             StateHasChanged();
+            Saved = true;
+            TitleError = 0;
         }
         else
         {
             TitleError = 1;
-            StateHasChanged();
         }
-
 
         if(TextAreaValue != null)
         {
@@ -106,11 +112,10 @@
                     EntryId = EntryId
                 }
             );
+            Saved = true;
             TextAreaError = 0;
-            StateHasChanged();
         }else {
             TextAreaError = 1;
-            StateHasChanged();
         }
         StateHasChanged();
         ShouldRender();
