@@ -142,6 +142,7 @@
             }
         }
         Saved = true;
+        await LoadEntry();
         StateHasChanged();
         ShouldRender();
     }
@@ -185,6 +186,11 @@
         {
             AddTextItem(lastItem.NextItem);
             lastItem = lastItem.NextItem;
+        }
+
+        if (Items.Count == 0)
+        {
+            Items.Add(new TextItem { Content = "" });
         }
     }
 
