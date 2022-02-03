@@ -1,6 +1,8 @@
 ﻿using Bazaro.Web;
+using Bazaro.Web.Models;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
+using System;
 using Xunit;
 
 namespace Bazaro.Test.Base
@@ -27,7 +29,13 @@ namespace Bazaro.Test.Base
 
         protected virtual void DatabaseOneTimeData()
         {
-
+            _context.Add(new User
+            {
+                Email = "test@test.test",
+                Created = DateTime.Now,
+                EmailConfirmed = true,
+                NormalizedEmail = "Test@TEST.TEST"
+            });
         }
     }
 }
