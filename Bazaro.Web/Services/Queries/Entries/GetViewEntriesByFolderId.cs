@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Queries.Entries
             public int? FolderId { get; set; }
         }
 
+        /// <summary>
+        /// Returns Entries 
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>List of EntryModel</returns>
         public static async Task<List<EntryModel>> Handle(BazaroContext context, Query request)
         {
             var userFolderReferences = await context.Set<UserFolderReference>()

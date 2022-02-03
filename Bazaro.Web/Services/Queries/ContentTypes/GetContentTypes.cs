@@ -10,6 +10,12 @@ namespace Bazaro.Web.Services.Queries.ContentTypes
         {
         }
 
+        /// <summary>
+        /// Returns all ContentTypes
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns>List of ContentTypeModel</returns>
         public static Task<List<ContentTypeModel>> Handle(BazaroContext context, Query request)
         {
             return context.Set<ContentType>()

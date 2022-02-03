@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Queries.Statistics
             public int MaxCount { get; set; }
         }
 
+        /// <summary>
+        /// Returns Recent Entries by UserId
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>List of EntryModel</returns>
         public static Task<List<EntryModel>> Handle(BazaroContext context, Query request)
         {
             return context.Set<UserFolderReference>()

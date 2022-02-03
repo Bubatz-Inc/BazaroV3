@@ -1,6 +1,6 @@
 ﻿namespace Bazaro.Web.Services.ViewModels
 {
-    public class MonthlyStatModel
+    public class MonthlyStateModel
     {
         public int Year { get; set; }
         public int Month { get; set; }

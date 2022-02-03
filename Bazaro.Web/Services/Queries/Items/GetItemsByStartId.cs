@@ -11,6 +11,12 @@ namespace Bazaro.Web.Services.Queries.Items
             public int StartId { get; set; }
         }
 
+        /// <summary>
+        /// Retuns Items by startId
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>ItemModel</returns>
         public static async Task<ItemModel> Handle(BazaroContext context, Query request)
         {
             var data = await context.Set<Item>()

@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Queries.Folders
             public int EntryId { get; set; }
         }
 
+        /// <summary>
+        /// Returns Folder by EntryId
+        /// </summary>
+        /// <param name="context">Database-Cotnext</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>List of FolderModel</returns>
         public static Task<FolderModel> Handle(BazaroContext context, Query request)
         {
             return context.Set<FolderEntryReference>()
