@@ -35,8 +35,8 @@
     private RenderFragment LoadTreeSelectModal()
     {
             return
-    @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal _folderToMove=_selectedFolder OnValidSubmit=ReturnCallback isEntry=false/>
-    ;
+        @<TreeSelectComponent _rootFolder=_rootFolder _visible=_folderMoveModal _folderToMove=_selectedFolder OnValidSubmit=ReturnCallback isEntry=false/>
+        ;
     }
 
     // Runs when "Delete" is pressed on the right click context menu
@@ -53,6 +53,8 @@
             {
                 Id = folderId
             });
+
+        await OnValidSubmit.InvokeAsync();
     }
 
     private async Task RenameFolderEvent(ItemClickEventArgs e)
@@ -73,6 +75,8 @@
 
         _folderName = _folder.Title;
         ShowModal();
+
+        await OnValidSubmit.InvokeAsync();
     }
 
     private void ShowModal()

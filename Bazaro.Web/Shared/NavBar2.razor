@@ -1,4 +1,5 @@
 ﻿@inject NavigationManager Nav
+@using Bazaro.Web.Pages.Components
 
 @*   
 ------------------------------------
@@ -227,25 +228,28 @@
         @<div>
             @foreach(var folder in folders)
             {
-                <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
-                    @{string title = "📁" + folder.Title;}
-                    <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title">
-                        @if(folder.Entries is not null)
-                        {
-                            @foreach(var entry in folder.Entries)
+                if(!folder.IsDeleted)
+                {
+                    <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
+                        @{string title = "📁" + folder.Title;}
+                        <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title">
+                            @if(folder.Entries is not null)
                             {
-                                <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
-                                    <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</MenuItem>  
-                                </ContextMenuTrigger>
+                                @foreach(var entry in folder.Entries)
+                                {
+                                    <ContextMenuTrigger Data="@entry.Id" MenuId="EntryRightClick" Id="@entry.Id.ToString()">
+                                        <MenuItem Key="@entry.Id.ToString()" @onclick="() => OpenEntry(entry.Id)">📋 @entry.Title</MenuItem>  
+                                    </ContextMenuTrigger>
+                                }
                             }
-                        }
-                        @* Render subfolders *@
-                        @if(folder.SubFolders is not null && folder.SubFolders.Count != 0)
-                        {
-                            @RenderFolderTree(folder.SubFolders);
-                        }
-                    </AntDesign.SubMenu>
-                </ContextMenuTrigger>
+                            @* Render subfolders *@
+                            @if(folder.SubFolders is not null && folder.SubFolders.Count != 0)
+                            {
+                                @RenderFolderTree(folder.SubFolders);
+                            }
+                        </AntDesign.SubMenu>
+                    </ContextMenuTrigger>
+                }
             }
         </div>
     ;

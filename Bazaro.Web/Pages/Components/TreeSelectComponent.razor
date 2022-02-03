@@ -1,10 +1,9 @@
 ﻿<Modal 
-
-        Title="@_title"
-       Visible="@_visible"
-       OnOk="@HandleOk"
-       OnCancel="@HandleCancel"
-       ConfirmLoading="@_confirmLoading">
+Title="@_title"
+Visible="@_visible"
+OnOk="@HandleOk"
+OnCancel="@HandleCancel"
+ConfirmLoading="@_confirmLoading">
     <div>
         <TreeSelect TItem="string"
 			Style="width:100%;"
@@ -13,7 +12,7 @@
 			AllowClear
 			TreeDefaultExpandAll>
             @RenderFolderTree(_rootFolder.SubFolders)
-</TreeSelect>
+        </TreeSelect>
     </div>
 </Modal>
 
@@ -41,26 +40,30 @@
         @<div>
             @foreach(var folder in folders)
             {
-                @* Ignore when an entry is moved *@
-                @if(!isEntry)
+                if(!folder.IsDeleted)
                 {
-                    @* Ignore folder to move to if its the currently moved folder *@
-                    @if(_folderToMove.Id == folder.Id && folder.SubFolders.Count == 0)
+                    @* Ignore when an entry is moved *@
+                    @if(!isEntry)
                     {
-                        continue;
+                        @* Ignore folder to move to if its the currently moved folder *@
+                        @if(_folderToMove.Id == folder.Id && folder.SubFolders.Count == 0)
+                        {
+                            continue;
+                        }
                     }
+                    <TreeNode TItem="string" Key="@folder.Id.ToString()" Title="@folder.Title">
+                        @if(folder.SubFolders is not null)
+                        {
+                            @RenderFolderTree(folder.SubFolders);
+                        }        
+                    </TreeNode>
                 }
-                <TreeNode TItem="string" Key="@folder.Id.ToString()" Title="@folder.Title">
-                    @if(folder.SubFolders is not null)
-                    {
-                        @RenderFolderTree(folder.SubFolders);
-                    }        
-                </TreeNode>
             }
         </div>
     ;
     }
 
+    // Handles move modal confirm
     private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
@@ -84,6 +87,7 @@
         _visible = false;
     }
 
+    // Handles move modal cancel 
     private async Task HandleCancel(MouseEventArgs e)
     {
         _visible = false;
@@ -93,6 +97,7 @@
         StateHasChanged();
     }
 
+    // Moves a folder into a given folderId
     private async Task MoveFolderIntoFolderId(int topFolderId, int subFolderId)
     {
         string userId = (await userManager
@@ -113,6 +118,7 @@
             });
     }
 
+    // Moves an entry into a given folderId
     private async Task MoveNoteIntoFolderId(int newFolderId, int oldFolderId, int entryId)
     {
         string userId = (await userManager
