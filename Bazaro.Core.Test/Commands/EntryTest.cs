@@ -74,9 +74,11 @@ namespace Bazaro.Core.Test.Commands
 
             Assert.Equal(1, dataRef.FolderId);
 
-            _context.RemoveRange(_context.Set<Entry>());
             _context.RemoveRange(_context.Set<FolderEntryReference>());
+            _context.RemoveRange(_context.Set<Entry>());
             _context.AddRange(dataOld);
+
+            await _context.SaveChangesAsync();
         }
 
         [Fact]
@@ -87,7 +89,7 @@ namespace Bazaro.Core.Test.Commands
             {
                 Created = DateTime.Now,
                 EntryId = dataOld.Id,
-                FolderId = null,
+                FolderId = 1,
             });
 
             await _context.SaveChangesAsync();
