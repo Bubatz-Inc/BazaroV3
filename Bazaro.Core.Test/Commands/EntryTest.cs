@@ -87,7 +87,7 @@ namespace Bazaro.Core.Test.Commands
             {
                 Created = DateTime.Now,
                 EntryId = dataOld.Id,
-                FolderId = null,
+                FolderId = 1,
             });
 
             await _context.SaveChangesAsync();
