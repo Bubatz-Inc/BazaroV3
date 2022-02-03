@@ -4,9 +4,7 @@ using Bazaro.Web.Models.References;
 using Bazaro.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -75,7 +73,7 @@ namespace Bazaro.Core.Test.Commands
             Assert.Equal("Test", dataItem.Title);
 
             Assert.Equal(1, dataRef.FolderId);
-            
+
             _context.RemoveRange(_context.Set<Entry>());
             _context.RemoveRange(_context.Set<FolderEntryReference>());
             _context.AddRange(dataOld);
@@ -126,7 +124,7 @@ namespace Bazaro.Core.Test.Commands
         public async Task DeleteEntryPassingTest()
         {
             var oldData = await _context.Set<Entry>().ToListAsync();
-            
+
             Assert.NotEmpty(oldData);
             Assert.Single(oldData);
 
