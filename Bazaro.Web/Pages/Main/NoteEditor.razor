@@ -60,8 +60,8 @@
 
     //bind to this value
     public string TextAreaValue { get; set; }
-    
-    
+
+
     private EntryModel entry { get; set; }
 
     // used to display Error messeages for the inputs
@@ -87,8 +87,8 @@
                     Title = entry.Title
                 }
             );
-             TitleError = 0;
-             StateHasChanged();
+            TitleError = 0;
+            StateHasChanged();
         }
         else
         {
@@ -116,9 +116,14 @@
         ShouldRender();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
+        await base.OnParametersSetAsync();
+        await LoadEntry();
+    }
 
+    private async Task LoadEntry()
+    {
         entry = new();
         entry = await entryservice.GetEntryById(new Services.Queries.Entries.GetEntryById.Query
             {
@@ -126,13 +131,18 @@
             }
         );
 
+        TextAreaValue = "";
+
         if(entry.StartItemId != null)
         {
             ItemModel item = new();
             item = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
             TextAreaValue = Encoding.UTF8.GetString(item.Content);
         }
+    }
 
+    protected override async Task OnInitializedAsync()
+    {
         await base.OnInitializedAsync();
     }
 }
