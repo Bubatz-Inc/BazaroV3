@@ -9,6 +9,12 @@ namespace Bazaro.Web.Services.Commands.ContentTypes
             public string Title { get; set; }
         }
 
+        /// <summary>
+        /// Inserts ContentType
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static Task Handle(BazaroContext context, Command request)
         {
             context.Add(new ContentType
