@@ -5,24 +5,25 @@
           Theme=theme   
           Mode=@MenuMode.Inline
           Class="sidebar">
-            <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
-			    <IconTemplate>
-                    <Icon Type="radar-chart" Theme="outline"/>
-				    <IconFont Type="icon-c-sharp-l" />
-			    </IconTemplate>
-		    </MenuItem>
-            <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))">
-			    <IconTemplate>
-                    <Icon Type="home" Theme="outline"></Icon>
-				    <IconFont Type="icon-c-sharp-l" />
-			    </IconTemplate>
-		    </MenuItem>
-            <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))">
-			    <IconTemplate>
-                    <Icon Type="calendar" Theme="outline"></Icon>
-				    <IconFont Type="icon-c-sharp-l" />
-			    </IconTemplate>
-		    </MenuItem>
+          <AuthorizeView>
+             <Authorized>
+                 @* AUTHORIZED *@
+                <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
+			        <Image Preview=false Src="/icon-lg.png" Alt="icon.png" />
+		        </MenuItem>
+                <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))" Icon="home"/>
+                <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))" Icon="calendar"/>
+            </Authorized>
+                <NotAuthorized>
+                    @* UNAUTHORIZED *@
+                    <MenuItem Key="1" @onclick="@(() => NavToStr("/"))">
+			            <Image Preview=false Src="/icon-lg.png" Alt="icon.png" />
+		            </MenuItem>
+                    <MenuItem Key="2" @onclick="@(() => NavToStr("/dashboard"))" Icon="home" Disabled=true/>
+                    <MenuItem Key="3" @onclick="@(() => NavToStr("/calendar"))" Icon="calendar" Disabled=true/>
+                </NotAuthorized>
+            </AuthorizeView>
+
     </Menu>
 </div>
 

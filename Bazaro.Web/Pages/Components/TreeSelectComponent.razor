@@ -64,8 +64,6 @@
     private async Task HandleOk(MouseEventArgs e)
     {
         _confirmLoading = true;
-        _visible = false;
-        _confirmLoading = false;
         string localvalue = value;
 
         // folder null and _selectedTopFolderId 0
@@ -82,6 +80,8 @@
 
         StateHasChanged();
         await OnValidSubmit.InvokeAsync();
+        _confirmLoading = false;
+        _visible = false;
     }
 
     private async Task HandleCancel(MouseEventArgs e)

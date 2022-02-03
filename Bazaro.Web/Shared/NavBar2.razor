@@ -8,23 +8,71 @@
 
 <div class="wrapper">
     <Menu Style="width: 256px; height: 100%; margin-left: 58px;"
-          class="sidebar"
+          Class="sidebar"
           Theme=theme
           Mode=@MenuMode.Inline>
+          <MenuItem Disabled=true>
+            <h4 style="color: white;">Workspace</h4>
+          </MenuItem>
+          <MenuDivider/>
+            <div class="container">
+                <div class="row" style="margin-top: 15px">
+
+                    @* ADD ENTRY BUTTON *@
+                    <div class="col">
+                        @if (_entryAddLoading || _folders is null)
+                        {
+                            @* Entry is being added (Loading Icon)*@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" Disabled=true Icon="loading"/>
+                        }
+                        else if(_folderAddLoading)
+                        {
+                            @* Folder is being added (Disabled) *@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" Icon="file-add" Disabled=true/>
+                        }
+                        else
+                        {
+                            @* Creating Entry is clickable (Available) *@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
+                        }
+                    </div>
+
+                    @* ADD FOLDER BUTTON *@
+                    <div class="col">
+                        @if (_folderAddLoading || _orphanEntries == null)
+                        {
+                            @* Folder is being added (Loading Icon)*@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" Icon="loading" Disabled=true/>
+                        }
+                        else if(_entryAddLoading)
+                        {
+                            @* Entry is being added (Disabled) *@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" Icon="folder-add" Disabled=true/>
+                        }
+                        else
+                        {
+                            @* Creating Folder is clickable (Available) *@
+                            <Button Type="@ButtonType.Primary" Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
+                        }
+                    </div>
+                </div>
+            </div>
+
+          @* Loading Icon if data is being loaded *@
+          @if(_folders is null && _orphanEntries == null)
+            {
                 <MenuItem>
                     <div class="container">
                         <div class="row">
-                            <div class="col">
-                                <Button Style="width: 100%;" @onclick="@(() => CreateEntry())" Icon="file-add"/>
-                            </div>
-                            <div class="col">
-                                <Button Style="width: 100%;" @onclick="@(() => CreateFolder())" Icon="folder-add"/>
-                            </div>
+                            <Icon Type="loading" Theme="outline"/>
                         </div>
                     </div>
                 </MenuItem>
-          @* Render Folder Tree structure*@
-          @RenderFolderTree(_folders)
+            }
+            else
+            {
+                @RenderFolderTree(_folders)
+            }
 
           @* Load Ophan (root level) entries *@
           @if(_orphanEntries is not null)
@@ -39,6 +87,7 @@
     </Menu>
 </div>
 
+@* Right click menus (RENAME, DELETE, MOVE TO) *@
 <FolderRightclickMenu OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
 <EntryRightclickMenu OnValidSubmit="RefreshData" _rootFolder=_rootFolder/>
 
@@ -46,14 +95,18 @@
 {
     MenuTheme theme = MenuTheme.Dark;
 
+    // Root folder (contains all subfolders)
     private FolderModel _rootFolder = null;
 
     // Folders displayed on the sidebar
-    private List<FolderModel> _folders = new();
+    private List<FolderModel> _folders;
 
     // Entries of with root folder as parent
     private List<EntryModel> _orphanEntries;
 
+    // Button loading animation lock variables
+    private bool _folderAddLoading = false;
+    private bool _entryAddLoading = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -71,7 +124,7 @@
     private async Task RefreshData()
     {
         await LoadFolders();
-        await LoadEntries();
+        _folders = await LoadEntries(_folders);
         await LoadOrphanEntries();
     }
 
@@ -90,6 +143,11 @@
         {
             // Load subfolders into folders using recursive method
             _folders = await LoadFoldersAndSubFolders(_rootFolder.SubFolders);
+        }
+        else
+        {
+            // Instance empty list (if user doesnt have any folders)
+            _folders = new();
         }
     }
 
@@ -119,14 +177,19 @@
     }
 
     // Loads Entries into folders to be displayed in the sidebar
-    private async Task LoadEntries()
+    private async Task<List<FolderModel>> LoadEntries(List<FolderModel> folders)
     {
-        List<FolderModel> localFolders = _folders;
+        List<FolderModel> localFolders = folders;
 
         var userId = await GetCurrentUserId();
 
-        foreach(var folder in _folders)
+        foreach(var folder in folders)
         {
+            if(folder.SubFolders is not null)
+            {
+                folder.SubFolders = await LoadEntries(folder.SubFolders);
+            }
+
             List<EntryModel> folderEntries = await entryService.GetViewEntriesByFolderId(new Services.Queries.Entries.GetViewEntriesByFolderId.Query
                 {
                     FolderId = folder.Id,
@@ -137,7 +200,7 @@
             updatedFolder.Entries = folderEntries;
         }
 
-        _folders = localFolders;
+        return localFolders;
     }
 
     // Load entries that do not have a folder
@@ -166,7 +229,7 @@
             {
                 <ContextMenuTrigger Data="@folder.Id" MenuId="FolderRightClick" Id="@folder.Id.ToString()">
                     @{string title = "📁" + folder.Title;}
-                    <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title"  >
+                    <AntDesign.SubMenu Key="@folder.Id.ToString()" Title="@title">
                         @if(folder.Entries is not null)
                         {
                             @foreach(var entry in folder.Entries)
@@ -207,11 +270,12 @@
     /* ------------------------------------
      * ------------ DB QUERIES ------------
      * ------------------------------------
-     */
+    */
 
     // Query to create new Note / Entry
     private async Task CreateEntry(int? folderId = null)
     {
+        _entryAddLoading = true;
         // Check if FolderID was specified (create entry in root if not)
         if(folderId is null)
         {
@@ -227,11 +291,13 @@
         });
 
         await RefreshData();
+        _entryAddLoading = false;
     }
 
     // Query to create new Folder
     private async Task CreateFolder(int? previousFolderId = null)
     {
+        _folderAddLoading = true;
         if(previousFolderId is null)
         {
             previousFolderId = _rootFolder.Id;
@@ -251,5 +317,6 @@
         });
 
         await RefreshData();
+        _folderAddLoading = false;
     }
 }

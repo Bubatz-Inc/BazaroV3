@@ -7,45 +7,53 @@
 @inject EntryService es
 @inherits OwningComponentBase<UserManager<User>>
 
-<h3>Calendar</h3>
-<AntDesign.Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</AntDesign.Button>
-<AntDesign.Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
+<AuthorizeView>
+    <Authorized>
+        <h3>Calendar</h3>
+        <Button Type="@ButtonType.Primary" @onclick=@AddEntry>Add Entry</Button>
+        <Calendar Value="@PanelDate" OnSelect="((v) => {SelectedDate = v; PanelDate = v;})" OnPanelChange=@OnPanelChange DateCellRender="DateCellRender" />
 
-@*Edit / Add Entry Modal*@
-<Modal Title="@("Title")"
-       Visible="@_visible"
-       OnOk="@HandleOk"
-       OnCancel="@HandleCancel"
-       ConfirmLoading="@_confirmLoading">
-    @if(SelectedEntry is not null) {
-        <div>
-            @SelectedEntry.StartDate.Date.ToLongDateString()
-            <div>
-                <BlazoredTypeahead SearchMethod="SearchEntryModels"
-                        TValue="EntryModel"
-                        TItem="EntryModel"
-                        @bind-Value="selectedEntryModel"
-                        placeholder="Select Note...">
-                    <SelectedTemplate Context="entry">
-                        @{
-                            <text>@entry?.Title (Id: @entry?.Id)</text>
-                        }
-                    </SelectedTemplate> 
-                    <ResultTemplate Context="entry">
-                        @entry.Title (Id: @entry.Id)
-                    </ResultTemplate>
-                </BlazoredTypeahead>
+        @*Edit / Add Entry Modal*@
+        <Modal Title="@("Title")"
+               Visible="@_visible"
+               OnOk="@HandleOk"
+               OnCancel="@HandleCancel"
+               ConfirmLoading="@_confirmLoading">
+            @if(SelectedEntry is not null) {
                 <div>
-                    <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                    @SelectedEntry.StartDate.Date.ToLongDateString()
+                    <div>
+                        <BlazoredTypeahead SearchMethod="SearchEntryModels"
+                                TValue="EntryModel"
+                                TItem="EntryModel"
+                                @bind-Value="selectedEntryModel"
+                                placeholder="Select Note...">
+                            <SelectedTemplate Context="entry">
+                                @{
+                                    <text>@entry?.Title (Id: @entry?.Id)</text>
+                                }
+                            </SelectedTemplate> 
+                            <ResultTemplate Context="entry">
+                                @entry.Title (Id: @entry.Id)
+                            </ResultTemplate>
+                        </BlazoredTypeahead>
+                        <div>
+                            <RangePicker DefaultValue="new DateTime?[] { SelectedDate, null }" TValue="DateTime?[]" ShowTime='@("HH:mm")' OnChange="OnDateChange" />
+                        </div>
+                    </div>
+                    @if (EditMode)
+                    {
+                        <Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</Button>
+                    }
                 </div>
-            </div>
-            @if (EditMode)
-            {
-                <AntDesign.Button Type="@ButtonType.Primary" Color="Color.Red1" @onclick=@DeleteEntry>Delete</AntDesign.Button>
             }
-        </div>
-    }
-</Modal>
+        </Modal>
+
+    </Authorized>
+    <NotAuthorized>
+        <a>Unauthorized to view this page.</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code
 {

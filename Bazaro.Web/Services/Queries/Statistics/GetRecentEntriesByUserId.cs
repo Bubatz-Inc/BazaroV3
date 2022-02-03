@@ -16,10 +16,11 @@ namespace Bazaro.Web.Services.Queries.Statistics
         {
             return context.Set<UserFolderReference>()
                 .Join(context.Set<FolderEntryReference>()
-                    .Include(x => x.Entry),
-                ufr => ufr.FolderId,
-                fer => fer.FolderId,
-                (ufr, fer) => new { ufr, fer })
+                        .Include(x => x.Entry),
+                    ufr => ufr.FolderId,
+                    fer => fer.FolderId,
+                    (ufr, fer) => new { ufr, fer })
+                .Where(x => x.ufr.UserId == request.UserId)
                 .OrderByDescending(x => x.fer.Entry.Updated)
                 .Take(request.MaxCount)
                 .Select(x => new EntryModel
