@@ -4,25 +4,29 @@
 @using Bazaro.Web.Models
 @inject ItemService itemservice
 @inject EntryService entryservice
+@inject NavigationManager NavManager
 
 <AuthorizeView>
     <Authorized>
-<div class="p-2">
-    @if(entry != null)
-    {
-        @entry.Title
-    }
-    
-</div>
-<div id="editor">
-    @((MarkupString)markdownHtml)
-</div>
+        <div >
+            @if(entry != null)
+            {
+        
+                <h1>@entry.Title</h1>
+            }  
+        </div>
+        <div  id="editor">
+            @((MarkupString)markdownHtml)
+        </div>
+        <div >
+            <Button Type="@ButtonType.Primary" @onclick="() => ShowEditor()" >Show Editor</Button>
+        </div>
 
-<style>
-    .editor {
-        height: 100%;
-    } 
-</style>
+        <style>
+            .editor {
+                height: 100%;
+            } 
+        </style>
     </Authorized>
     <NotAuthorized>
         <a>Unauthorized to view this page.</a>
@@ -55,15 +59,15 @@
                     string markdownText = Encoding.UTF8.GetString(item.Content);
                     markdownHtml = Markdig.Markdown.ToHtml(markdownText ?? string.Empty);
                 }
-            
+
             }
         }
-        
-        
-
         await base.OnInitializedAsync();
     }
 
+    private void ShowEditor()
+    {
+        NavManager.NavigateTo("/NoteEditor/" + EntryId);
+    }
 
-    
 }
