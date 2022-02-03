@@ -1,2 +1,10 @@
 - name: Introduction
   href: intro.md
+- name: Database
+  href: database.md
+- name: Database Diagram
+  href: dbDiagram.md
+- name: GitHub Actions
+  href: GH_Action.md
+- name: Deployment
+  href: Deployment.md
