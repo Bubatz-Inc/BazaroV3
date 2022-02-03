@@ -9,25 +9,35 @@
 
 <AuthorizeView>
     <Authorized>
-@if(TextAreaError == 1)
-{
-    <Alert Type="@AlertType.Error"
-       Message="Editor is empty"
-       Description="The Editor must have some Text."
-       ShowIcon="true" 
-       Closable="true"
-       Class=/>
-}
+        @if(TextAreaError == 1)
+        {
+            <Alert Type="@AlertType.Error"
+               Message="Editor is empty"
+               Description="The Editor must have some Text."
+               ShowIcon="true" 
+               Closable="true"
+               />
+        }
 
-@if(TitleError == 1)
-{
-    <Alert Type="@AlertType.Error"
-       Message="Title is empty"
-       Description="The Title must have a Value."
-       ShowIcon="true" 
-       Closable="true"
-       Class=/>
-}
+        @if(TitleError == 1)
+        {
+            <Alert Type="@AlertType.Error"
+               Message="Title is empty"
+               Description="The Title must have a Value."
+               ShowIcon="true" 
+               Closable="true"
+            />
+        }
+
+        @if(Saved == true)
+        {
+            <Alert Type="@AlertType.Success"
+               Message="Saved"
+               ShowIcon="true" 
+               Closable="true"
+               AfterClose="() => Saved = false"
+               />
+        }
 
 <h3 class="p-2">Notes</h3>
 <div class="p-2">
@@ -77,8 +87,9 @@
     private List<TextItem> Items { get; set; } = new();
 
     // used to display Error messeages for the inputs
-    public int TitleError { get; set; }
-    public int TextAreaError { get; set; }
+    private int TitleError { get; set; }
+    private int TextAreaError { get; set; }
+    private bool Saved {  get;  set; }
 
     private async Task ShowPreview()
     {
@@ -99,6 +110,7 @@
                     Title = entry.Title
                 }
             );
+            Saved = true;
             TitleError = 0;
         }
         else
@@ -129,7 +141,7 @@
                     });
             }
         }
-
+        Saved = true;
         StateHasChanged();
         ShouldRender();
     }
@@ -165,7 +177,6 @@
         {
             ItemModel firstItem = new();
             firstItem = await itemservice.GetViewItemByStartId((int)entry.StartItemId);
-            //TextAreaValue = Encoding.UTF8.GetString(item.Content);
             AddTextItem(firstItem);
             lastItem = firstItem;
         }
