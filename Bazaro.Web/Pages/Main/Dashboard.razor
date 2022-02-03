@@ -14,7 +14,7 @@
         <div class="row fullsize">
 
             <div class="col">
-                <Card Class="fullsize" Title="Recently Opened" Style="height: 500px">
+                <Card Class="fullsize dropshadow" Title="Recently Opened" Style="height: 500px">
                     <Body>
                             @if(_last5Entries is not null)
                             {
@@ -43,7 +43,7 @@
 
     @* Weeks Events Card *@
     <div class="col-6">
-        <Card Title="This weeks's events" Style="height: 50%">
+        <Card Title="This weeks's events" Style="height: 50%" Class="dropshadow">
                 <Body>
                     <div style="display: inline">
                         @if(_calendarEntries is not null)
@@ -72,7 +72,7 @@
             </Card>
 
             @* QuickCard *@
-            <Card Title="Quick note" Style="margin-top: 30px;">
+            <Card Title="Quick note" Style="margin-top: 30px;" Class="dropshadow">
                 <Body >
                     <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
                     <Button @onclick="() => CreateNewQuickNote(quicknoteContent)" Type="@ButtonType.Primary" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
@@ -87,6 +87,12 @@
     }
     .top-buffer { 
         margin-top:20px; 
+    }
+
+    .dropshadow{
+    /* Black shadow with 10px blur */
+    filter: drop-shadow(0.30rem 0.30rem 0.30rem gray);
+
     }
 </style>
 
