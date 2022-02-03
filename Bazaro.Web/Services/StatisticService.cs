@@ -12,6 +12,7 @@ namespace Bazaro.Web.Services
             _context = context;
         }
 
-        public Task<List<MonthlyStatModel>> GetMonthlyStatsByUserId(string userId) => GetMonthlyNotesCount.Handle(_context, new GetMonthlyNotesCount.Query { UserId = userId });
+        public Task<List<MonthlyStatModel>> GetMonthlyStatsByUserId(GetMonthlyNotesCount.Query request) => GetMonthlyNotesCount.Handle(_context, request);
+        public Task<List<EntryModel>> GetRecentlyUpdatedEntries(GetRecentEntriesByUserId.Query request) => GetRecentEntriesByUserId.Handle(_context, request);
     }
 }

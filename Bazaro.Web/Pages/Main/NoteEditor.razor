@@ -8,6 +8,7 @@
 
 
 <AuthorizeView>
+    <Authorized>
 @if(TextAreaError == 1)
 {
     <Alert Type="@AlertType.Error"
@@ -40,14 +41,17 @@
     <Button Type="@ButtonType.Primary" @onclick="() => Save()" >Save</Button>
 </div>
 
-
+</Authorized>
+    <NotAuthorized>
+        <a>Unauthorized to view this page.</a>
+    </NotAuthorized>
+</AuthorizeView>
 
 <style>
     .editor{
         height: 100%;
     }
-</style>
-</AuthorizeView>
+</style>  
 
 @code {
 

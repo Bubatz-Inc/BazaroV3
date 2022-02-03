@@ -5,6 +5,16 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Web", "Bazaro.Web\Bazaro.Web.csproj", "{AF44B6B9-A461-436B-AC37-5F2D67029925}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EBB23ECB-5856-4F6D-8F66-4A78B36D1286}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{D028F7D6-EAFB-4967-B70D-FD7EFA7A481B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Test.Base", "Bazaro.Test.Base\Bazaro.Test.Base.csproj", "{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bazaro.Core.Test", "Bazaro.Core.Test\Bazaro.Core.Test.csproj", "{1EB37242-2D56-400F-BBDA-62670F10D447}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazaro.Documentation", "Bazaro.Documentation\Bazaro.Documentation.csproj", "{68904EBF-CE15-4A1C-9059-2C527E79AF81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +25,26 @@ Global
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF44B6B9-A461-436B-AC37-5F2D67029925}.Release|Any CPU.Build.0 = Release|Any CPU
+		{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{328A25BE-DDEB-4891-B4FF-C58FB2C1F886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EB37242-2D56-400F-BBDA-62670F10D447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EB37242-2D56-400F-BBDA-62670F10D447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EB37242-2D56-400F-BBDA-62670F10D447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EB37242-2D56-400F-BBDA-62670F10D447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68904EBF-CE15-4A1C-9059-2C527E79AF81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D028F7D6-EAFB-4967-B70D-FD7EFA7A481B} = {EBB23ECB-5856-4F6D-8F66-4A78B36D1286}
+		{328A25BE-DDEB-4891-B4FF-C58FB2C1F886} = {D028F7D6-EAFB-4967-B70D-FD7EFA7A481B}
+		{1EB37242-2D56-400F-BBDA-62670F10D447} = {EBB23ECB-5856-4F6D-8F66-4A78B36D1286}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A0F487C-1C1F-4DB7-A48E-5890A7CE252A}

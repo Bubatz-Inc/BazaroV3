@@ -12,7 +12,10 @@ jobs:
 
     steps:     
     -
-        name: Login to Docker Hub
+        name: Git pull
+        run: git pull 
+    -
+        name: Login to Docker Hub 
         uses: docker/login-action@v1
         with:
           username: oldviking

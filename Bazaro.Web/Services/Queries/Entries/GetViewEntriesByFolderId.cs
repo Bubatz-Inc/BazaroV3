@@ -1,4 +1,4 @@
-﻿using Bazaro.Web.Models.References;
+using Bazaro.Web.Models.References;
 using Bazaro.Web.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,25 +14,32 @@ namespace Bazaro.Web.Services.Queries.Entries
 
         public static async Task<List<EntryModel>> Handle(BazaroContext context, Query request)
         {
-            var userFolders = await context.Set<UserFolderReference>()
-                .Where(x => x.UserId == request.UserId)
+            var userFolderReferences = await context.Set<UserFolderReference>()
+                .Join(context.Set<FolderEntryReference>()
+                        .Include(x => x.Entry),
+                    ufr => ufr.FolderId,
+                    fer => fer.FolderId,
+                    (ufr, fer) => new { ufr, fer })
+                .Where(x => x.ufr.UserId == request.UserId && x.ufr.FolderId == request.FolderId)
+                .Select(x => x.fer)
                 .ToListAsync();
 
-            var entries = new List<EntryModel>();
-            foreach (var item in userFolders)
+            var entryList = new List<EntryModel>();
+            foreach (var item in userFolderReferences)
             {
-                entries.AddRange(await context.Set<FolderEntryReference>()
-                    .Where(x => x.FolderId == item.FolderId)
-                    .Select(x => new EntryModel
-                    {
-                        Id = x.Entry.Id,
-                        Title = x.Entry.Title,
-                        Description = x.Entry.Description,
-                        StartItemId = x.Entry.StartItemId,
-                    }).ToListAsync());
+                if (entryList.Any(x => x.Id == item.Entry.Id))
+                    continue;
+
+                entryList.Add(new EntryModel
+                {
+                    Id = item.Entry.Id,
+                    Description = item.Entry.Description,
+                    Title = item.Entry.Title,
+                    StartItemId = item.Entry.StartItemId,
+                });
             }
 
-            return entries;
+            return entryList;
         }
     }
 }

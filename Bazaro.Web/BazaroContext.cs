@@ -33,6 +33,18 @@ namespace Bazaro.Web
             {
                 item.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder
+                .Entity<Entry>()
+                .HasOne(e => e.StartItem)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .Entity<Item>()
+                .HasOne(e => e.NextItem)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
