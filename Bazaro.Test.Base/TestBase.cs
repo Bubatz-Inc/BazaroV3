@@ -1,6 +1,8 @@
 ﻿using Bazaro.Web;
+using Bazaro.Web.Models;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
+using System;
 using Xunit;
 
 namespace Bazaro.Test.Base
@@ -25,9 +27,20 @@ namespace Bazaro.Test.Base
 
         protected void CreateDatabaseOnTimeData() => _fixture.CreateDatabaseDataOneTime(() => DatabaseOneTimeData());
 
-        protected virtual void DatabaseOneTimeData()
+        protected virtual async void DatabaseOneTimeData()
         {
+            _context.Add(new User
+            {
+                Email = "test@test.test",
+                Created = DateTime.Now,
+                EmailConfirmed = true,
+                NormalizedEmail = "Test@TEST.TEST",
+                PasswordHash = "Test",
+                UserName = "Test",
+                NormalizedUserName = "Test",
+            });
 
+            await _context.SaveChangesAsync();
         }
     }
 }

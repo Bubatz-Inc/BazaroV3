@@ -18,6 +18,12 @@ namespace Bazaro.Web.Services.Commands.Entries
             public int? NewFolderId { get; set; }
         }
 
+        /// <summary>
+        /// Updates Entry (can change folderpos)
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = await context.Set<Entry>().FirstOrDefaultAsync(x => x.Id == request.Id);

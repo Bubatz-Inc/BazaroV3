@@ -10,6 +10,12 @@ namespace Bazaro.Web.Services.Commands.CalendarEntries
             public int CalendarEntryId { get; set; }
         }
 
+        /// <summary>
+        /// Deletes a CalendarEntry
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = await context.Set<CalendarEntry>().FirstOrDefaultAsync(x => x.Id == request.CalendarEntryId);

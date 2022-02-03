@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Queries.Folders
             public int Id { get; set; }
         }
 
+        /// <summary>
+        /// Returns Folder with coresponding id
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>FolderModel</returns>
         public static Task<FolderModel> Handle(BazaroContext context, Query request)
         {
             return context.Set<Folder>()

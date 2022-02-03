@@ -13,6 +13,12 @@ namespace Bazaro.Web.Services.Queries.Folders
             public string UserId { get; set; }
         }
 
+        /// <summary>
+        /// Returns FolderModel with Subfolders by FolderId and UserId
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns>FolderModel</returns>
         public static async Task<FolderModel> Handle(BazaroContext context, Query request)
         {
             var rootFolder = await context.Set<UserFolderReference>()

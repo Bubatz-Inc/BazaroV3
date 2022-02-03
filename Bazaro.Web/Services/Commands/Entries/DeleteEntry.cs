@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Commands.Entries
             public int FolderId { get; set; }
         }
 
+        /// <summary>
+        /// Deletes Entry
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handel(BazaroContext context, Command request)
         {
             var reference = await context.Set<FolderEntryReference>().FirstOrDefaultAsync(x => x.EntryId == request.Id && x.FolderId == request.FolderId);

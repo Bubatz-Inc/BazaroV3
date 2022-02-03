@@ -11,6 +11,12 @@ namespace Bazaro.Web.Services.Commands.CalendarEntries
             public DateTime? EndDate { get; set; }
         }
 
+        /// <summary>
+        /// Inserts CalendarEntry
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static Task Handle(BazaroContext context, Command request)
         {
             context.Add(new CalendarEntry

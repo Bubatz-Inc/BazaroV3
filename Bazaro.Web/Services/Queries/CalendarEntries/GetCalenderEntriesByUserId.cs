@@ -14,6 +14,12 @@ namespace Bazaro.Web.Services.Queries.CalendarEntries
             public DateTime EndDate { get; set; }
         }
 
+        /// <summary>
+        /// Returns Calendar Entries by userId
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns>List of CalendarEntryModel</returns>
         public static async Task<List<CalendarEntryModel>> Handle(BazaroContext context, Query request)
         {
             var res = await context.Set<UserFolderReference>()

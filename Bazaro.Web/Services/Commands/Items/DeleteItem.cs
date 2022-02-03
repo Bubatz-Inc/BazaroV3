@@ -12,6 +12,12 @@ namespace Bazaro.Web.Services.Commands.Items
             public int? PreviousItem { get; set; }
         }
 
+        /// <summary>
+        /// Deletes Item
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = await context.Set<Item>().FirstOrDefaultAsync(x => x.Id == request.Id);
@@ -21,7 +27,9 @@ namespace Bazaro.Web.Services.Commands.Items
 
             if(data.NextItemId.HasValue && request.PreviousItem.HasValue)
             {
-                var previousItem = context.Set<Item>().FirstOrDefault(x => x.Id == request.Id);
+                // Set last item
+
+                var previousItem = await context.Set<Item>().FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 if (previousItem == null)
                     return;
@@ -30,6 +38,8 @@ namespace Bazaro.Web.Services.Commands.Items
             }
             else if(!data.NextItemId.HasValue && request.PreviousItem.HasValue)
             {
+                // Set first item
+
                 var entry = await context.Set<Entry>().FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 if (entry == null)

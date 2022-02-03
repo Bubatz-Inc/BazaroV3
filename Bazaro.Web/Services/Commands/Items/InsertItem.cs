@@ -14,6 +14,12 @@ namespace Bazaro.Web.Services.Commands.Items
             public int? PreviousItemId { get; set; }
         }
 
+        /// <summary>
+        /// Inserts Item
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public static async Task Handler(BazaroContext context, Command request)
         {
             var newItem = new Item
@@ -29,6 +35,8 @@ namespace Bazaro.Web.Services.Commands.Items
 
             if (!request.PreviousItemId.HasValue)
             {
+                // Set in between
+
                 var entry = await context.Set<Entry>().FirstOrDefaultAsync(x => x.Id == request.EntryId);
 
                 if (entry == null)
@@ -40,6 +48,8 @@ namespace Bazaro.Web.Services.Commands.Items
             }
             else
             {
+                // Set last item
+
                 var previousItem = await context.Set<Item>().FirstOrDefaultAsync(x => x.Id == request.PreviousItemId);
 
                 if (previousItem == null)

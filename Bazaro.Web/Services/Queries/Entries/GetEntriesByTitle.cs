@@ -14,6 +14,12 @@ namespace Bazaro.Web.Services.Queries.Entries
             public int MaxCount { get; set; }
         }
 
+        /// <summary>
+        /// Retruns Entrys with coresponding titles
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns>List of EntryModel</returns>
         public static Task<List<EntryModel>> Handler(BazaroContext context, Query request)
         {
             return context.Set<Entry>()

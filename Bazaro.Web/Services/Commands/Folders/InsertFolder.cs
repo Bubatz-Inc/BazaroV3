@@ -15,6 +15,12 @@ namespace Bazaro.Web.Services.Commands.Folders
             public int? PreviousFolder { get; set; }
         }
 
+        /// <summary>
+        /// Inserts Folder
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request">Request-Data</param>
+        /// <returns></returns>
         public static async Task Handle(BazaroContext context, Command request)
         {
             var data = new Folder()

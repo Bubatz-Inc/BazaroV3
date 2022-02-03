@@ -10,6 +10,12 @@ namespace Bazaro.Web.Services.Commands.EntryReferences
             public int RefernceEntryId { get; set; }
         }
 
+        /// <summary>
+        /// Inserts EntryReference
+        /// </summary>
+        /// <param name="context">Database-Context</param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public static Task Handle(BazaroContext context, Command request)
         {
             context.Add(new EntryReference
