@@ -14,8 +14,10 @@
         <div class="row fullsize">
 
             <div class="col">
-                <Card Class="fullsize dropshadow" Title="Recently Opened" Style="height: 500px">
-                    <Body>
+                <div class="card fullsize dropshadow" style="height: 500px">
+                  <div class="card-body">
+                      <h5 class="card-title">Recently Opened</h5>
+                        <p class="card-text">
                             @if(_last5Entries is not null)
                             {
                             @if(_last5Entries.Count == 0)
@@ -35,50 +37,57 @@
                             {
                                 <label>Nothing to display...</label>
                             }
-                        </Body>
-                </Card>
+                            </p>
+                  </div>
+                </div>
             </div>
         </div>
     </div>
 
     @* Weeks Events Card *@
     <div class="col-6">
-        <Card Title="This weeks's events" Style="height: 50%" Class="dropshadow">
-                <Body>
-                    <div style="display: inline">
-                        @if(_calendarEntries is not null)
-                        {
-                            @if(_calendarEntries.Count == 0)
-                            {
-                                <label>No recent Entries...</label>
-                            }
-                            else
-                            {
-                                @foreach(var entry in _calendarEntries)
+        <div class="card fullsize dropshadow" style="height: 50%">
+                  <div class="card-body">
+                      <h5 class="card-title">This weeks's events</h5>
+                        <p class="card-text">
+                            <div style="display: inline">
+                                @if(_calendarEntries is not null)
                                 {
-                                    @if(entry is not null)
+                                    @if(_calendarEntries.Count == 0)
                                     {
-                                        <label>- @entry.Entry.Title</label>
-                                        <br />
+                                        <label>No recent Entries...</label>
+                                    }
+                                    else
+                                    {
+                                        @foreach(var entry in _calendarEntries)
+                                        {
+                                            @if(entry is not null)
+                                            {
+                                                <label>- @entry.Entry.Title</label>
+                                                <br />
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
-                        else if(_calendarEntries is null)
-                        {
-                            <label>No Events this week!</label>
-                        }
-                    </div>
-                </Body>
-            </Card>
+                                else if(_calendarEntries is null)
+                                {
+                                    <label>No Events this week!</label>
+                                }
+                            </div>
+                        </p>
+                  </div>
+                </div>
 
             @* QuickCard *@
-            <Card Title="Quick note" Style="margin-top: 30px;" Class="dropshadow">
-                <Body >
-                    <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
+            <div class="card dropshadow" style="margin-top: 5%;">
+                <div class="card-body">
+                    <h5 class="card-title">Quick note</h5>
+                    <p class="card-text">
+                        <TextArea Rows="4" Style="height: 200px" @bind-Value="@quicknoteContent" />
                     <Button @onclick="() => CreateNewQuickNote(quicknoteContent)" Type="@ButtonType.Primary" Style="float: right; margin-top: 5px">Add to Quicknotes</Button>
-                </Body>
-            </Card>
+                </p>
+                </div>
+                </div>
     </div>
 </div>
 
